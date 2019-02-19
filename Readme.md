@@ -1,7 +1,7 @@
 # Личный проект «Большое путешествие» [![Build status][travis-image]][travis-url]
 
 * Студент: [Дамир Масалимов](https://up.htmlacademy.ru/ecmascript/8/user/441629).
-* Наставник: `Неизвестно`.
+* Наставник: [Михаил Еланцев](https://up.htmlacademy.ru/ecmascript/8/user/928641).
 
 ---
 
