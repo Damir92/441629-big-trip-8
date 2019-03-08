@@ -20,13 +20,11 @@ const getRandomPrice = (maxPrice, round) => (getRandom(maxPrice / round) + 1) * 
 
 const getRandomDate = () => {
   const startDate = Date.now() + getRandom(10 * 24) * 60 * 60 * 1000;
-  const duration = getRandom(10);
-  const finishDate = startDate + duration * 60 * 60 * 1000;
+  const finishDate = startDate + getRandom(10) * 60 * 60 * 1000;
 
   return {
     start: new Date(startDate),
-    end: new Date(finishDate),
-    duration
+    end: new Date(finishDate)
   };
 };
 
@@ -39,24 +37,10 @@ const getOffers = (offersArray) => {
   }
 
   for (let offer of setOfOffers) {
-    let newObject = {};
-    newObject[offer] = getRandomPrice(100, 10);
-    offersOfPoint[offersOfPoint.length] = newObject;
+    offersOfPoint.push({name: offer, price: getRandomPrice(100, 10)});
   }
 
   return offersOfPoint;
-};
-
-const makeOffersList = (offersArray) => {
-  let templateOfOffers = ``;
-
-  offersArray.forEach((item) => {
-    templateOfOffers += `<li>
-              <button class="trip-point__offer">${Object.keys(item)} +&euro;&nbsp;${item[Object.keys(item)]}</button>
-            </li>`;
-  });
-
-  return templateOfOffers;
 };
 
 const getRandomDescription = (desc) => {
@@ -72,7 +56,7 @@ const getRandomDescription = (desc) => {
 export default () => ({
   type: typesName[getRandom(typesName.length)],
   cities,
-  offers: makeOffersList(getOffers(offers)),
+  offers: getOffers(offers),
   description: getRandomDescription(descriptions),
   time: getRandomDate(),
   price: getRandomPrice(100, 10)
