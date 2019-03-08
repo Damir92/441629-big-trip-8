@@ -11,20 +11,18 @@ const removeTrip = () => {
   });
 };
 
-// console.log(type.get('train'));
-
 const makeTrip = (count) => {
   removeTrip();
 
   let template = ``;
-  let arrayOfTasks = [];
+  let arrayOfPoints = [];
 
   for (let i = 0; i < count; i++) {
-    arrayOfTasks[i] = getRandomPoint();
+    arrayOfPoints[i] = getRandomPoint();
   }
 
   for (let i = 0; i < count; i++) {
-    template += makePoint(arrayOfTasks[i]);
+    template += makePoint(arrayOfPoints[i]);
   }
 
   tripItem.insertAdjacentHTML(`beforeEnd`, template);

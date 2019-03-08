@@ -1,6 +1,6 @@
 const typesName = [`taxi`, `bus`, `train`, `ship`, `transport`, `drive`, `flight`, `checkin`, `sightseeing`, `restaurant`];
 const cities = [`Amsterdam`, `Geneva`, `Chamonix`, `Geneva`, `Amsterdam`];
-const offers = new Set([`Add luggage`, `Switch to comfort class`, `Add meal`, `Choose seats`]);
+const offers = [`Add luggage`, `Switch to comfort class`, `Add meal`, `Choose seats`];
 const descriptions = [
   `Lorem ipsum dolor sit amet, consectetur adipiscing elit.`,
   `Cras aliquet varius magna, non porta ligula feugiat eget.`,
@@ -16,18 +16,47 @@ const descriptions = [
 
 export const getRandom = (length) => Math.floor(Math.random() * length);
 
-export const getRandomPrice = (maxPrice, round) => getRandom(maxPrice / round) * round;
+const getRandomPrice = (maxPrice, round) => (getRandom(maxPrice / round) + 1) * round;
 
-const getRandomDate = () => Date.now() + getRandom(10 * 24) * 60 * 60 * 1000;
+const getRandomDate = () => {
+  const startDate = Date.now() + getRandom(10 * 24) * 60 * 60 * 1000;
+  const duration = getRandom(10);
+  const finishDate = startDate + duration * 60 * 60 * 1000;
+
+  return {
+    start: new Date(startDate),
+    end: new Date(finishDate),
+    duration
+  };
+};
 
 const getOffers = (offersArray) => {
   let setOfOffers = new Set();
+  let offersOfPoint = [];
 
   for (let index = 0; index < 2; index++) {
-    setOfOffers.add([...offersArray][getRandom(offersArray.size)]);
+    setOfOffers.add(offersArray[getRandom(offersArray.length)]);
   }
 
-  return setOfOffers;
+  for (let offer of setOfOffers) {
+    let newObject = {};
+    newObject[offer] = getRandomPrice(100, 10);
+    offersOfPoint[offersOfPoint.length] = newObject;
+  }
+
+  return offersOfPoint;
+};
+
+const makeOffersList = (offersArray) => {
+  let templateOfOffers = ``;
+
+  offersArray.forEach((item) => {
+    templateOfOffers += `<li>
+              <button class="trip-point__offer">${Object.keys(item)} +&euro;&nbsp;${item[Object.keys(item)]}</button>
+            </li>`;
+  });
+
+  return templateOfOffers;
 };
 
 const getRandomDescription = (desc) => {
@@ -43,9 +72,8 @@ const getRandomDescription = (desc) => {
 export default () => ({
   type: typesName[getRandom(typesName.length)],
   cities,
-  offers: getOffers(offers),
+  offers: makeOffersList(getOffers(offers)),
   description: getRandomDescription(descriptions),
-  startTime: new Date(getRandomDate()),
-  price: getRandomPrice(100, 10),
-  duration: getRandom(10)
+  time: getRandomDate(),
+  price: getRandomPrice(100, 10)
 });
