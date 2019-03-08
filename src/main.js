@@ -1,5 +1,6 @@
 import {tripFilter} from './make-filter.js';
 import makePoint from './make-point.js';
+import getRandomPoint from './data.js';
 
 const TEMP_MAX = 7;
 const tripItem = document.querySelector(`.trip-day__items`);
@@ -14,9 +15,14 @@ const makeTrip = (count) => {
   removeTrip();
 
   let template = ``;
+  let arrayOfPoints = [];
 
   for (let i = 0; i < count; i++) {
-    template += makePoint();
+    arrayOfPoints[i] = getRandomPoint();
+  }
+
+  for (let i = 0; i < count; i++) {
+    template += makePoint(arrayOfPoints[i]);
   }
 
   tripItem.insertAdjacentHTML(`beforeEnd`, template);
