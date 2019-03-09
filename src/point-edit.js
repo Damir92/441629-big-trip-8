@@ -133,9 +133,11 @@ export default class Point {
       return typeof this._onReset === `function` && this._onReset();
     };
 
-    this._element.querySelector(`form`).addEventListener(`submit`, this._onSubmitClick);
+    const form = this._element.querySelector(`form`);
 
-    this._element.querySelector(`form`).addEventListener(`reset`, this._onResetClick);
+    form.addEventListener(`submit`, this._onSubmitClick);
+
+    form.addEventListener(`reset`, this._onResetClick);
   }
 
   render() {
@@ -150,8 +152,10 @@ export default class Point {
   }
 
   unbind() {
-    this._element.querySelector(`form`).removeEventListener(`submit`, this._onSubmitClick);
+    const form = this._element.querySelector(`form`);
 
-    this._element.querySelector(`[type="reset"]`).removeEventListener(`click`, this._onResetClick);
+    form.removeEventListener(`submit`, this._onSubmitClick);
+
+    form.removeEventListener(`click`, this._onResetClick);
   }
 }

@@ -46,7 +46,7 @@ export default class Point {
       return typeof this._onEdit === `function` && this._onEdit();
     };
 
-    this._eventListener = this._element.addEventListener(`click`, this._onEditClick);
+    this._element.addEventListener(`click`, this._onEditClick);
   }
 
   render() {
@@ -61,6 +61,6 @@ export default class Point {
   }
 
   unbind() {
-    this._eventListener = this._element.removeEventListener(`click`, this._onEditClick);
+    this._element.removeEventListener(`click`, this._onEditClick);
   }
 }

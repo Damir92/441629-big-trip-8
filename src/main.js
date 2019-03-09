@@ -46,11 +46,6 @@ const makeTrip = (count) => {
       editPointComponent.unrender();
     };
   }
-  // for (let i = 0; i < count; i++) {
-  //   // template += makePoint(arrayOfPoints[i]);
-  //   const pointComponent = new Point()
-  // }
-
 
   tripItem.insertAdjacentHTML(`beforeEnd`, template);
 };
