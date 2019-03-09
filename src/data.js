@@ -1,4 +1,15 @@
 const typesName = [`taxi`, `bus`, `train`, `ship`, `transport`, `drive`, `flight`, `checkin`, `sightseeing`, `restaurant`];
+const typesIcon = {
+  taxi: `🚕`,
+  bus: `🚌`,
+  train: `🚂`,
+  ship: `🛳️`,
+  transport: `🚊`,
+  drive: `🚗`,
+  flight: `✈️`,
+  checkin: `🏨`,
+  sightseeing: `🏛️`,
+  restaurant: `🍴`};
 const cities = [`Amsterdam`, `Geneva`, `Chamonix`, `Geneva`, `Amsterdam`];
 const offers = [`Add luggage`, `Switch to comfort class`, `Add meal`, `Choose seats`];
 const descriptions = [
@@ -28,6 +39,12 @@ const getRandomDate = () => {
   };
 };
 
+const getType = () => {
+  const nameOfType = typesName[getRandom(typesName.length)];
+
+  return {name: nameOfType, icon: typesIcon[nameOfType]};
+};
+
 const getOffers = (offersArray) => {
   let setOfOffers = new Set();
   let offersOfPoint = [];
@@ -54,10 +71,11 @@ const getRandomDescription = (desc) => {
 };
 
 export default () => ({
-  type: typesName[getRandom(typesName.length)],
+  type: getType(),
   cities,
   offers: getOffers(offers),
   description: getRandomDescription(descriptions),
   time: getRandomDate(),
-  price: getRandomPrice(100, 10)
+  price: getRandomPrice(100, 10),
+  photo: `//picsum.photos/300/150?r=${Math.random()}`
 });

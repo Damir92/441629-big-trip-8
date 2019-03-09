@@ -1,15 +1,3 @@
-const types = {
-  taxi: `🚕`,
-  bus: `🚌`,
-  train: `🚂`,
-  ship: `🛳️`,
-  transport: `🚊`,
-  drive: `🚗`,
-  flight: `✈️`,
-  checkin: `🏨`,
-  sightseeing: `🏛️`,
-  restaurant: `🍴`};
-
 const makeOffersList = (offersArray) => {
   let templateOfOffers = ``;
 
@@ -29,8 +17,8 @@ const makeTime = (date) => {
 };
 
 export default (data) => `<article class="trip-point">
-          <i class="trip-icon">${types[data.type]}</i>
-          <h3 class="trip-point__title">${data.type}</h3>
+          <i class="trip-icon">${data.type.icon}</i>
+          <h3 class="trip-point__title">${data.type.name}</h3>
           <p class="trip-point__schedule">
             <span class="trip-point__timetable">${makeTime(data.time.start)}&nbsp;&mdash; ${makeTime(data.time.end)}</span>
             <span class="trip-point__duration">${(data.time.end - data.time.start) / 60 / 60 / 1000}h 00m</span>
