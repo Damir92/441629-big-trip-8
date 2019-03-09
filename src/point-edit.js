@@ -20,6 +20,10 @@ export default class Point {
     this._onSubmit = fn;
   }
 
+  set onReset(fn) {
+    this._onReset = fn;
+  }
+
   get element() {
     return this._element;
   }
