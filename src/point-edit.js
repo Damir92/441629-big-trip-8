@@ -1,7 +1,9 @@
-import {makeTime, createElement} from './utils.js';
+import Component from './component.js';
+import {makeTime} from './utils.js';
 
-export default class Point {
+export default class Point extends Component {
   constructor(data) {
+    super();
     this._type = data.type.name;
     this._icon = data.type.icon;
     this._cities = data.cities;
@@ -11,7 +13,6 @@ export default class Point {
     this._price = data.price;
     this._photo = data.photo;
 
-    this._element = null;
     this._onSubmit = null;
     this._onReset = null;
   }
@@ -22,10 +23,6 @@ export default class Point {
 
   set onReset(fn) {
     this._onReset = fn;
-  }
-
-  get element() {
-    return this._element;
   }
 
   get template() {
@@ -144,22 +141,11 @@ export default class Point {
     form.addEventListener(`reset`, this._onResetClick);
   }
 
-  render() {
-    this._element = createElement(this.template);
-    this.bind();
-    return this._element;
-  }
-
-  unrender() {
-    this.unbind();
-    this._element = null;
-  }
-
   unbind() {
     const form = this._element.querySelector(`form`);
 
     form.removeEventListener(`submit`, this._onSubmitClick);
 
-    form.removeEventListener(`click`, this._onResetClick);
+    form.removeEventListener(`reset`, this._onResetClick);
   }
 }
