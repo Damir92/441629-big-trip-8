@@ -1,7 +1,9 @@
-import {makeTime, createElement} from './utils.js';
+import Component from './component.js';
+import {makeTime} from './utils.js';
 
-export default class Point {
+export default class Point extends Component {
   constructor(data) {
+    super();
     this._type = data.type.name;
     this._icon = data.type.icon;
     this._cities = data.cities;
@@ -11,12 +13,7 @@ export default class Point {
     this._price = data.price;
     this._photo = data.photo;
 
-    this._element = null;
     this._onEdit = null;
-  }
-
-  get element() {
-    return this._element;
   }
 
   set onEdit(fn) {
@@ -47,17 +44,6 @@ export default class Point {
     };
 
     this._element.addEventListener(`click`, this._onEditClick);
-  }
-
-  render() {
-    this._element = createElement(this.template);
-    this.bind();
-    return this._element;
-  }
-
-  unrender() {
-    this.unbind();
-    this._element = null;
   }
 
   unbind() {
