@@ -1,7 +1,8 @@
 import Component from './component.js';
-import {makeTime} from './utils.js';
+import flatpickr from 'flatpickr';
+import moment from 'moment';
 
-export default class Point extends Component {
+export default class PointEdit extends Component {
   constructor(data) {
     super();
     this._type = data.type.name;
@@ -13,8 +14,79 @@ export default class Point extends Component {
     this._price = data.price;
     this._photo = data.photo;
 
+    this._onSubmitClick = this._onSubmitClick.bind(this);
+    this._onResetClick = this._onResetClick.bind(this);
+
     this._onSubmit = null;
     this._onReset = null;
+
+    this._flatpickrTime = null;
+  }
+
+  _processForm(formData) {
+    const entry = {
+      type: {
+        name: ``
+      },
+      time: {
+        start: new Date(),
+        end: new Date()
+      }
+    };
+
+    const pointEditMapper = PointEdit.createMapper(entry);
+
+    for (const pair of formData.entries()) {
+      const [property, value] = pair;
+
+      if (pointEditMapper[property]) {
+        if (property === `time`) {
+          if (value === ``) {
+            pointEditMapper[property](this._time);
+          } else {
+            const timeArr = value.split(` — `);
+            if (timeArr[0] === `` || timeArr[1] === ``) {
+              pointEditMapper[property](this._time);
+            } else {
+              const time = {
+                start: timeArr[0],
+                end: timeArr[1]
+              };
+              pointEditMapper[property](time);
+            }
+          }
+          continue;
+        } else {
+          pointEditMapper[property](value);
+        }
+      }
+    }
+
+    return entry;
+  }
+
+  _onSubmitClick(evt) {
+    evt.preventDefault();
+
+    const formData = new FormData(this._element.querySelector(`form`));
+    const newData = this._processForm(formData);
+
+    if (typeof this._onSubmit === `function`) {
+      this._onSubmit(newData);
+    }
+
+    this.update(newData);
+  }
+
+  _onResetClick(evt) {
+    evt.preventDefault();
+    if (typeof this._onReset === `function`) {
+      this._onReset();
+    }
+  }
+
+  _partialUpdate() {
+    this._element.innerHTML = this.template;
   }
 
   set onSubmit(fn) {
@@ -77,7 +149,7 @@ export default class Point extends Component {
 
           <label class="point__time">
             choose time
-            <input class="point__input" type="text" value="${makeTime(this._time.start)} — ${makeTime(this._time.end)}" name="time" placeholder="${makeTime(this._time.start)} — ${makeTime(this._time.end)}">
+            <input class="point__input" type="text" value="" name="time" placeholder="${moment(this._time.start).format(`HH:mm`)}&nbsp;&mdash; ${moment(this._time.end).format(`HH:mm`)}">
           </label>
 
           <label class="point__price">
@@ -124,21 +196,13 @@ export default class Point extends Component {
   }
 
   bind() {
-    this._onSubmitClick = (evt) => {
-      evt.preventDefault();
-      return typeof this._onSubmit === `function` && this._onSubmit();
-    };
-
-    this._onResetClick = (evt) => {
-      evt.preventDefault();
-      return typeof this._onReset === `function` && this._onReset();
-    };
-
     const form = this._element.querySelector(`form`);
 
     form.addEventListener(`submit`, this._onSubmitClick);
 
     form.addEventListener(`reset`, this._onResetClick);
+
+    this._flatpickrTime = flatpickr(this._element.querySelector(`.point__time .point__input`), {enableTime: true, altInput: true, mode: `range`, altFormat: `H:i`, locale: {rangeSeparator: ` — `}});
   }
 
   unbind() {
@@ -147,5 +211,24 @@ export default class Point extends Component {
     form.removeEventListener(`submit`, this._onSubmitClick);
 
     form.removeEventListener(`reset`, this._onResetClick);
+
+    this._flatpickrTime.destroy();
+  }
+
+  update(data) {
+    this._type = data.type.name;
+    this._time = data.time;
+  }
+
+  static createMapper(target) {
+    return {
+      'travel-way': (value) => {
+        target.type.name = value;
+      },
+      'time': (value) => {
+        target.time.start = new Date(value.start);
+        target.time.end = new Date(value.end);
+      }
+    };
   }
 }

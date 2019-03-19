@@ -1,5 +1,6 @@
 import Component from './component.js';
-import {makeTime} from './utils.js';
+import {getTimeWithZero} from './utils.js';
+import moment from 'moment';
 
 export default class Point extends Component {
   constructor(data) {
@@ -25,8 +26,8 @@ export default class Point extends Component {
           <i class="trip-icon">${this._icon}</i>
           <h3 class="trip-point__title">${this._type}</h3>
           <p class="trip-point__schedule">
-            <span class="trip-point__timetable">${makeTime(this._time.start)}&nbsp;&mdash; ${makeTime(this._time.end)}</span>
-            <span class="trip-point__duration">${(this._time.end - this._time.start) / 60 / 60 / 1000}h 00m</span>
+            <span class="trip-point__timetable">${moment(this._time.start).format(`HH:mm`)}&nbsp;&mdash; ${moment(this._time.end).format(`HH:mm`)}</span>
+            <span class="trip-point__duration">${getTimeWithZero(Math.ceil((this._time.end - this._time.start) / 60 / 60 / 1000))}h ${getTimeWithZero(((this._time.end - this._time.start) / 60 / 1000) % 60)}m</span>
           </p>
           <p class="trip-point__price">&euro;&nbsp;${this._price}</p>
           <ul class="trip-point__offers">
@@ -48,5 +49,10 @@ export default class Point extends Component {
 
   unbind() {
     this._element.removeEventListener(`click`, this._onEditClick);
+  }
+
+  update(data) {
+    this._type = data.type.name;
+    this._time = data.time;
   }
 }

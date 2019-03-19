@@ -9,3 +9,10 @@ export const createElement = (template) => {
   newElement.innerHTML = template;
   return newElement.firstChild;
 };
+
+export const getTimeWithZero = (time) => {
+  if (time < 10) {
+    return time === 0 ? `00` : `0` + time;
+  }
+  return time;
+};

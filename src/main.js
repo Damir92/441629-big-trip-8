@@ -34,7 +34,12 @@ const makeTrip = (count) => {
       pointComponent.unrender();
     };
 
-    editPointComponent.onSubmit = () => {
+    editPointComponent.onSubmit = (newObject) => {
+      item.type.name = newObject.type.name;
+      item.time.start = newObject.time.start;
+      item.time.end = newObject.time.end;
+
+      pointComponent.update(item);
       pointComponent.render();
       tripItem.replaceChild(pointComponent.element, editPointComponent.element);
       editPointComponent.unrender();
