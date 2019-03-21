@@ -53,6 +53,7 @@ export default class Point extends Component {
 
   update(data) {
     this._type = data.type.name;
+    this._icon = data.type.icon;
     this._time = data.time;
   }
 }

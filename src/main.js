@@ -35,9 +35,8 @@ const makeTrip = (count) => {
     };
 
     editPointComponent.onSubmit = (newObject) => {
-      item.type.name = newObject.type.name;
-      item.time.start = newObject.time.start;
-      item.time.end = newObject.time.end;
+      item.type = newObject.type;
+      item.time = newObject.time;
 
       pointComponent.update(item);
       pointComponent.render();

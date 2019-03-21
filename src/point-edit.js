@@ -1,5 +1,6 @@
 import Component from './component.js';
 import flatpickr from 'flatpickr';
+import {typesIcon} from './data.js';
 import moment from 'moment';
 
 export default class PointEdit extends Component {
@@ -26,7 +27,8 @@ export default class PointEdit extends Component {
   _processForm(formData) {
     const entry = {
       type: {
-        name: ``
+        name: ``,
+        icon: ``
       },
       time: {
         start: new Date(),
@@ -113,24 +115,24 @@ export default class PointEdit extends Component {
 
             <div class="travel-way__select">
               <div class="travel-way__select-group">
-                <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-taxi" name="travel-way" value="taxi">
+                <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-taxi" name="travel-way" value="taxi" ${this._type === `taxi` ? `checked` : ``}>
                 <label class="travel-way__select-label" for="travel-way-taxi">🚕 taxi</label>
 
-                <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-bus" name="travel-way" value="bus">
+                <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-bus" name="travel-way" value="bus" ${this._type === `bus` ? `checked` : ``}>
                 <label class="travel-way__select-label" for="travel-way-bus">🚌 bus</label>
 
-                <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-train" name="travel-way" value="train">
+                <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-train" name="travel-way" value="train" ${this._type === `train` ? `checked` : ``}>
                 <label class="travel-way__select-label" for="travel-way-train">🚂 train</label>
 
-                <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-flight" name="travel-way" value="train" checked>
+                <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-flight" name="travel-way" value="flight" ${this._type === `flight` ? `checked` : ``}>
                 <label class="travel-way__select-label" for="travel-way-flight">✈️ flight</label>
               </div>
 
               <div class="travel-way__select-group">
-                <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-check-in" name="travel-way" value="check-in">
+                <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-check-in" name="travel-way" value="check-in" ${this._type === `check-in` ? `checked` : ``}>
                 <label class="travel-way__select-label" for="travel-way-check-in">🏨 check-in</label>
 
-                <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-sightseeing" name="travel-way" value="sight-seeing">
+                <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-sightseeing" name="travel-way" value="sight-seeing" ${this._type === `sight-seeing` ? `checked` : ``}>
                 <label class="travel-way__select-label" for="travel-way-sightseeing">🏛 sightseeing</label>
               </div>
             </div>
@@ -175,7 +177,7 @@ export default class PointEdit extends Component {
 
             <div class="point__offers-wrap">
               ${(Array.from(this._offers).map((offer) => (`
-                <input class="point__offers-input visually-hidden" type="checkbox" id="${offer.name}.replace(/ /g,'-')" name="offer" value="${offer.name}">
+                <input class="point__offers-input visually-hidden" type="checkbox" id="${offer.name}.replace(/ /g,'-')" name="offer" value="${offer.name}" selected >
                 <label for="${offer.name}.replace(/ /g,'-')" class="point__offers-label">
                   <span class="point__offer-service">${offer.name}</span> + €<span class="point__offer-price">${offer.price}</span>
                 </label>`.trim()))).join(``)}
@@ -217,6 +219,7 @@ export default class PointEdit extends Component {
 
   update(data) {
     this._type = data.type.name;
+    this._icon = data.type.icon;
     this._time = data.time;
   }
 
@@ -224,6 +227,7 @@ export default class PointEdit extends Component {
     return {
       'travel-way': (value) => {
         target.type.name = value;
+        target.type.icon = typesIcon[value];
       },
       'time': (value) => {
         target.time.start = new Date(value.start);
