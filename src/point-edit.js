@@ -17,6 +17,7 @@ export default class PointEdit extends Component {
 
     this._onSubmitClick = this._onSubmitClick.bind(this);
     this._onResetClick = this._onResetClick.bind(this);
+    this._onTypeClick = this._onTypeClick.bind(this);
 
     this._onSubmit = null;
     this._onReset = null;
@@ -27,13 +28,15 @@ export default class PointEdit extends Component {
   _processForm(formData) {
     const entry = {
       type: {
-        name: ``,
-        icon: ``
+        name: this._type,
+        icon: this._icon
       },
       time: {
         start: new Date(),
         end: new Date()
-      }
+      },
+      price: 0,
+      offers: []
     };
 
     const pointEditMapper = PointEdit.createMapper(entry);
@@ -58,6 +61,12 @@ export default class PointEdit extends Component {
             }
           }
           continue;
+        } else if (property === `offer`) {
+          this._offers.forEach((offer) => {
+            if (offer.name === value) {
+              pointEditMapper[property](offer);
+            }
+          });
         } else {
           pointEditMapper[property](value);
         }
@@ -87,8 +96,12 @@ export default class PointEdit extends Component {
     }
   }
 
-  _partialUpdate() {
-    this._element.innerHTML = this.template;
+  _onTypeClick(evt) {
+    const newType = evt.target.value;
+
+    this._element.querySelector(`.travel-way__label`).innerHTML = typesIcon[newType];
+    this._element.querySelector(`.point__destination-label`).innerHTML = newType;
+    this._element.querySelector(`.travel-way__toggle`).checked = false;
   }
 
   set onSubmit(fn) {
@@ -177,8 +190,8 @@ export default class PointEdit extends Component {
 
             <div class="point__offers-wrap">
               ${(Array.from(this._offers).map((offer) => (`
-                <input class="point__offers-input visually-hidden" type="checkbox" id="${offer.name}.replace(/ /g,'-')" name="offer" value="${offer.name}" selected >
-                <label for="${offer.name}.replace(/ /g,'-')" class="point__offers-label">
+                <input class="point__offers-input visually-hidden" type="checkbox" id="${offer.name.replace(/ /g, `-`).toLowerCase()}" name="offer" value="${offer.name}" checked >
+                <label for="${offer.name.replace(/ /g, `-`).toLowerCase()}" class="point__offers-label">
                   <span class="point__offer-service">${offer.name}</span> + €<span class="point__offer-price">${offer.price}</span>
                 </label>`.trim()))).join(``)}
             </div>
@@ -204,6 +217,8 @@ export default class PointEdit extends Component {
 
     form.addEventListener(`reset`, this._onResetClick);
 
+    this._element.querySelector(`.travel-way__select`).addEventListener(`change`, this._onTypeClick);
+
     this._flatpickrTime = flatpickr(this._element.querySelector(`.point__time .point__input`), {enableTime: true, altInput: true, mode: `range`, altFormat: `H:i`, locale: {rangeSeparator: ` — `}});
   }
 
@@ -214,6 +229,8 @@ export default class PointEdit extends Component {
 
     form.removeEventListener(`reset`, this._onResetClick);
 
+    this._element.querySelector(`.travel-way__select`).removeEventListener(`change`, this._onTypeClick);
+
     this._flatpickrTime.destroy();
   }
 
@@ -221,10 +238,13 @@ export default class PointEdit extends Component {
     this._type = data.type.name;
     this._icon = data.type.icon;
     this._time = data.time;
+    this._price = data.price;
+    this._offers = data.offers;
   }
 
   static createMapper(target) {
     return {
+      'offer': (value) => target.offers.push(value),
       'travel-way': (value) => {
         target.type.name = value;
         target.type.icon = typesIcon[value];
@@ -232,6 +252,9 @@ export default class PointEdit extends Component {
       'time': (value) => {
         target.time.start = new Date(value.start);
         target.time.end = new Date(value.end);
+      },
+      'price': (value) => {
+        target.price = value;
       }
     };
   }

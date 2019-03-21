@@ -55,5 +55,7 @@ export default class Point extends Component {
     this._type = data.type.name;
     this._icon = data.type.icon;
     this._time = data.time;
+    this._price = data.price;
+    this._offers = data.offers;
   }
 }

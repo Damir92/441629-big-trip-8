@@ -37,6 +37,8 @@ const makeTrip = (count) => {
     editPointComponent.onSubmit = (newObject) => {
       item.type = newObject.type;
       item.time = newObject.time;
+      item.price = newObject.price;
+      item.offers = newObject.offers;
 
       pointComponent.update(item);
       pointComponent.render();
