@@ -1,7 +1,9 @@
 import Component from './component.js';
-import {makeTime} from './utils.js';
+import flatpickr from 'flatpickr';
+import {typesIcon} from './data.js';
+import moment from 'moment';
 
-export default class Point extends Component {
+export default class PointEdit extends Component {
   constructor(data) {
     super();
     this._type = data.type.name;
@@ -13,8 +15,93 @@ export default class Point extends Component {
     this._price = data.price;
     this._photo = data.photo;
 
+    this._onSubmitClick = this._onSubmitClick.bind(this);
+    this._onResetClick = this._onResetClick.bind(this);
+    this._onTypeClick = this._onTypeClick.bind(this);
+
     this._onSubmit = null;
     this._onReset = null;
+
+    this._flatpickrTime = null;
+  }
+
+  _processForm(formData) {
+    const entry = {
+      type: {
+        name: this._type,
+        icon: this._icon
+      },
+      time: {
+        start: new Date(),
+        end: new Date()
+      },
+      price: 0,
+      offers: []
+    };
+
+    const pointEditMapper = PointEdit.createMapper(entry);
+
+    for (const pair of formData.entries()) {
+      const [property, value] = pair;
+
+      if (pointEditMapper[property]) {
+        if (property === `time`) {
+          if (value === ``) {
+            pointEditMapper[property](this._time);
+          } else {
+            const timeArr = value.split(` — `);
+            if (timeArr[0] === `` || timeArr[1] === ``) {
+              pointEditMapper[property](this._time);
+            } else {
+              const time = {
+                start: timeArr[0],
+                end: timeArr[1]
+              };
+              pointEditMapper[property](time);
+            }
+          }
+          continue;
+        } else if (property === `offer`) {
+          this._offers.forEach((offer) => {
+            if (offer.name === value) {
+              pointEditMapper[property](offer);
+            }
+          });
+        } else {
+          pointEditMapper[property](value);
+        }
+      }
+    }
+
+    return entry;
+  }
+
+  _onSubmitClick(evt) {
+    evt.preventDefault();
+
+    const formData = new FormData(this._element.querySelector(`form`));
+    const newData = this._processForm(formData);
+
+    if (typeof this._onSubmit === `function`) {
+      this._onSubmit(newData);
+    }
+
+    this.update(newData);
+  }
+
+  _onResetClick(evt) {
+    evt.preventDefault();
+    if (typeof this._onReset === `function`) {
+      this._onReset();
+    }
+  }
+
+  _onTypeClick(evt) {
+    const newType = evt.target.value;
+
+    this._element.querySelector(`.travel-way__label`).innerHTML = typesIcon[newType];
+    this._element.querySelector(`.point__destination-label`).innerHTML = newType;
+    this._element.querySelector(`.travel-way__toggle`).checked = false;
   }
 
   set onSubmit(fn) {
@@ -41,24 +128,24 @@ export default class Point extends Component {
 
             <div class="travel-way__select">
               <div class="travel-way__select-group">
-                <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-taxi" name="travel-way" value="taxi">
+                <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-taxi" name="travel-way" value="taxi" ${this._type === `taxi` ? `checked` : ``}>
                 <label class="travel-way__select-label" for="travel-way-taxi">🚕 taxi</label>
 
-                <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-bus" name="travel-way" value="bus">
+                <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-bus" name="travel-way" value="bus" ${this._type === `bus` ? `checked` : ``}>
                 <label class="travel-way__select-label" for="travel-way-bus">🚌 bus</label>
 
-                <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-train" name="travel-way" value="train">
+                <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-train" name="travel-way" value="train" ${this._type === `train` ? `checked` : ``}>
                 <label class="travel-way__select-label" for="travel-way-train">🚂 train</label>
 
-                <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-flight" name="travel-way" value="train" checked>
+                <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-flight" name="travel-way" value="flight" ${this._type === `flight` ? `checked` : ``}>
                 <label class="travel-way__select-label" for="travel-way-flight">✈️ flight</label>
               </div>
 
               <div class="travel-way__select-group">
-                <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-check-in" name="travel-way" value="check-in">
+                <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-check-in" name="travel-way" value="check-in" ${this._type === `check-in` ? `checked` : ``}>
                 <label class="travel-way__select-label" for="travel-way-check-in">🏨 check-in</label>
 
-                <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-sightseeing" name="travel-way" value="sight-seeing">
+                <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-sightseeing" name="travel-way" value="sight-seeing" ${this._type === `sight-seeing` ? `checked` : ``}>
                 <label class="travel-way__select-label" for="travel-way-sightseeing">🏛 sightseeing</label>
               </div>
             </div>
@@ -77,7 +164,7 @@ export default class Point extends Component {
 
           <label class="point__time">
             choose time
-            <input class="point__input" type="text" value="${makeTime(this._time.start)} — ${makeTime(this._time.end)}" name="time" placeholder="${makeTime(this._time.start)} — ${makeTime(this._time.end)}">
+            <input class="point__input" type="text" value="" name="time" placeholder="${moment(this._time.start).format(`HH:mm`)}&nbsp;&mdash; ${moment(this._time.end).format(`HH:mm`)}">
           </label>
 
           <label class="point__price">
@@ -103,8 +190,8 @@ export default class Point extends Component {
 
             <div class="point__offers-wrap">
               ${(Array.from(this._offers).map((offer) => (`
-                <input class="point__offers-input visually-hidden" type="checkbox" id="${offer.name}.replace(/ /g,'-')" name="offer" value="${offer.name}">
-                <label for="${offer.name}.replace(/ /g,'-')" class="point__offers-label">
+                <input class="point__offers-input visually-hidden" type="checkbox" id="${offer.name.replace(/ /g, `-`).toLowerCase()}" name="offer" value="${offer.name}" checked >
+                <label for="${offer.name.replace(/ /g, `-`).toLowerCase()}" class="point__offers-label">
                   <span class="point__offer-service">${offer.name}</span> + €<span class="point__offer-price">${offer.price}</span>
                 </label>`.trim()))).join(``)}
             </div>
@@ -124,21 +211,15 @@ export default class Point extends Component {
   }
 
   bind() {
-    this._onSubmitClick = (evt) => {
-      evt.preventDefault();
-      return typeof this._onSubmit === `function` && this._onSubmit();
-    };
-
-    this._onResetClick = (evt) => {
-      evt.preventDefault();
-      return typeof this._onReset === `function` && this._onReset();
-    };
-
     const form = this._element.querySelector(`form`);
 
     form.addEventListener(`submit`, this._onSubmitClick);
 
     form.addEventListener(`reset`, this._onResetClick);
+
+    this._element.querySelector(`.travel-way__select`).addEventListener(`change`, this._onTypeClick);
+
+    this._flatpickrTime = flatpickr(this._element.querySelector(`.point__time .point__input`), {enableTime: true, altInput: true, mode: `range`, altFormat: `H:i`, locale: {rangeSeparator: ` — `}});
   }
 
   unbind() {
@@ -147,5 +228,34 @@ export default class Point extends Component {
     form.removeEventListener(`submit`, this._onSubmitClick);
 
     form.removeEventListener(`reset`, this._onResetClick);
+
+    this._element.querySelector(`.travel-way__select`).removeEventListener(`change`, this._onTypeClick);
+
+    this._flatpickrTime.destroy();
+  }
+
+  update(data) {
+    this._type = data.type.name;
+    this._icon = data.type.icon;
+    this._time = data.time;
+    this._price = data.price;
+    this._offers = data.offers;
+  }
+
+  static createMapper(target) {
+    return {
+      'offer': (value) => target.offers.push(value),
+      'travel-way': (value) => {
+        target.type.name = value;
+        target.type.icon = typesIcon[value];
+      },
+      'time': (value) => {
+        target.time.start = new Date(value.start);
+        target.time.end = new Date(value.end);
+      },
+      'price': (value) => {
+        target.price = value;
+      }
+    };
   }
 }

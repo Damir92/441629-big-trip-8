@@ -1,15 +1,15 @@
-const typesName = [`taxi`, `bus`, `train`, `ship`, `transport`, `drive`, `flight`, `checkin`, `sightseeing`, `restaurant`];
-const typesIcon = {
-  taxi: `🚕`,
-  bus: `🚌`,
-  train: `🚂`,
-  ship: `🛳️`,
-  transport: `🚊`,
-  drive: `🚗`,
-  flight: `✈️`,
-  checkin: `🏨`,
-  sightseeing: `🏛️`,
-  restaurant: `🍴`};
+const typesName = [`taxi`, `bus`, `train`, `ship`, `transport`, `drive`, `flight`, `check-in`, `sight-seeing`, `restaurant`];
+export const typesIcon = {
+  'taxi': `🚕`,
+  'bus': `🚌`,
+  'train': `🚂`,
+  'ship': `🛳️`,
+  'transport': `🚊`,
+  'drive': `🚗`,
+  'flight': `✈️`,
+  'check-in': `🏨`,
+  'sight-seeing': `🏛️`,
+  'restaurant': `🍴`};
 const cities = [`Amsterdam`, `Geneva`, `Chamonix`, `Geneva`, `Amsterdam`];
 const offers = [`Add luggage`, `Switch to comfort class`, `Add meal`, `Choose seats`];
 const descriptions = [
