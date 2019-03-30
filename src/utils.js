@@ -10,9 +10,18 @@ export const createElement = (template) => {
   return newElement.firstChild;
 };
 
-export const getTimeWithZero = (time) => {
-  if (time < 10) {
-    return time === 0 ? `00` : `0` + time;
+export const filterPoint = (point, filter) => {
+  switch (filter) {
+    case `everything`:
+      return true;
+
+    case `future`:
+      return Date.now() < point.time.start;
+
+    case `past`:
+      return Date.now() > point.time.start;
+
+    default:
+      return true;
   }
-  return time;
 };

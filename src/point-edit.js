@@ -16,11 +16,11 @@ export default class PointEdit extends Component {
     this._photo = data.photo;
 
     this._onSubmitClick = this._onSubmitClick.bind(this);
-    this._onResetClick = this._onResetClick.bind(this);
+    this._onDeleteClick = this._onDeleteClick.bind(this);
     this._onTypeClick = this._onTypeClick.bind(this);
 
     this._onSubmit = null;
-    this._onReset = null;
+    this._onDelete = null;
 
     this._flatpickrTime = null;
   }
@@ -89,10 +89,11 @@ export default class PointEdit extends Component {
     this.update(newData);
   }
 
-  _onResetClick(evt) {
+  _onDeleteClick(evt) {
     evt.preventDefault();
-    if (typeof this._onReset === `function`) {
-      this._onReset();
+
+    if (typeof this._onDelete === `function`) {
+      this._onDelete();
     }
   }
 
@@ -108,8 +109,8 @@ export default class PointEdit extends Component {
     this._onSubmit = fn;
   }
 
-  set onReset(fn) {
-    this._onReset = fn;
+  set onDelete(fn) {
+    this._onDelete = fn;
   }
 
   get template() {
@@ -215,7 +216,7 @@ export default class PointEdit extends Component {
 
     form.addEventListener(`submit`, this._onSubmitClick);
 
-    form.addEventListener(`reset`, this._onResetClick);
+    form.addEventListener(`reset`, this._onDeleteClick);
 
     this._element.querySelector(`.travel-way__select`).addEventListener(`change`, this._onTypeClick);
 
@@ -227,7 +228,7 @@ export default class PointEdit extends Component {
 
     form.removeEventListener(`submit`, this._onSubmitClick);
 
-    form.removeEventListener(`reset`, this._onResetClick);
+    form.removeEventListener(`reset`, this._onDeleteClick);
 
     this._element.querySelector(`.travel-way__select`).removeEventListener(`change`, this._onTypeClick);
 

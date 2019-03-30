@@ -24,6 +24,11 @@ const descriptions = [
   `Aliquam erat volutpat.`,
   `Nunc fermentum tortor ac porta dapibus.`,
   `In rutrum ac purus sit amet tempus.`];
+export const filters = [
+  {name: `everything`, checked: true},
+  {name: `future`, checked: false},
+  {name: `past`, checked: false}
+];
 
 export const getRandom = (length) => Math.floor(Math.random() * length);
 
