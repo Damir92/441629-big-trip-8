@@ -1,5 +1,4 @@
 import Component from './component.js';
-import {getTimeWithZero} from './utils.js';
 import moment from 'moment';
 
 export default class Point extends Component {
@@ -27,7 +26,7 @@ export default class Point extends Component {
           <h3 class="trip-point__title">${this._type}</h3>
           <p class="trip-point__schedule">
             <span class="trip-point__timetable">${moment(this._time.start).format(`HH:mm`)}&nbsp;&mdash; ${moment(this._time.end).format(`HH:mm`)}</span>
-            <span class="trip-point__duration">${getTimeWithZero(Math.ceil((this._time.end - this._time.start) / 60 / 60 / 1000))}h ${getTimeWithZero(((this._time.end - this._time.start) / 60 / 1000) % 60)}m</span>
+            <span class="trip-point__duration">${moment.utc(this._time.end - this._time.start).format(`hh`)}h ${moment.utc(this._time.end - this._time.start).format(`mm`)}m</span>
           </p>
           <p class="trip-point__price">&euro;&nbsp;${this._price}</p>
           <ul class="trip-point__offers">
