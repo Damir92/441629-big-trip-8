@@ -17,14 +17,14 @@ export function createMoneyChart(source) {
   if (moneyChart) {
     moneyChart.destroy();
   }
-  moneyCtx.height = BAR_HEIGHT * source[0].length;
+  moneyCtx.height = BAR_HEIGHT * source.type.length;
   moneyChart = new Chart(moneyCtx, {
     plugins: [ChartDataLabels],
     type: `horizontalBar`,
     data: {
-      labels: source[1],
+      labels: source.legend,
       datasets: [{
-        data: source[2],
+        data: source.price,
         backgroundColor: `#ffffff`,
         hoverBackgroundColor: `#ffffff`,
         anchor: `start`
@@ -89,14 +89,14 @@ export function createTransportChart(source) {
   if (transportChart) {
     transportChart.destroy();
   }
-  transportCtx.height = BAR_HEIGHT * source[0].length;
+  transportCtx.height = BAR_HEIGHT * source.type.length;
   transportChart = new Chart(transportCtx, {
     plugins: [ChartDataLabels],
     type: `horizontalBar`,
     data: {
-      labels: source[1],
+      labels: source.legend,
       datasets: [{
-        data: source[3],
+        data: source.count,
         backgroundColor: `#ffffff`,
         hoverBackgroundColor: `#ffffff`,
         anchor: `start`
@@ -161,14 +161,14 @@ export function createTimeSpendChart(source) {
   if (timeSpendChart) {
     timeSpendChart.destroy();
   }
-  timeSpendCtx.height = BAR_HEIGHT * source[0].length;
+  timeSpendCtx.height = BAR_HEIGHT * source.type.length;
   timeSpendChart = new Chart(timeSpendCtx, {
     plugins: [ChartDataLabels],
     type: `horizontalBar`,
     data: {
-      labels: source[1],
+      labels: source.legend,
       datasets: [{
-        data: source[4],
+        data: source.time,
         backgroundColor: `#ffffff`,
         hoverBackgroundColor: `#ffffff`,
         anchor: `start`

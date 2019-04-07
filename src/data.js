@@ -8,8 +8,11 @@ export const typesIcon = {
   'drive': `🚗`,
   'flight': `✈️`,
   'check-in': `🏨`,
-  'sight-seeing': `🏛️`,
+  'sightseeing': `🏛️`,
   'restaurant': `🍴`};
+export let destinationsArray = [];
+export let offersArray = [];
+
 const cities = [`Amsterdam`, `Geneva`, `Chamonix`, `Geneva`, `Amsterdam`];
 const offers = [`Add luggage`, `Switch to comfort class`, `Add meal`, `Choose seats`];
 const descriptions = [
@@ -50,12 +53,12 @@ const getType = () => {
   return {name: nameOfType, icon: typesIcon[nameOfType]};
 };
 
-const getOffers = (offersArray) => {
+const getOffers = (offersArr) => {
   let setOfOffers = new Set();
   let offersOfPoint = [];
 
   for (let index = 0; index < 2; index++) {
-    setOfOffers.add(offersArray[getRandom(offersArray.length)]);
+    setOfOffers.add(offersArr[getRandom(offersArr.length)]);
   }
 
   for (let offer of setOfOffers) {
@@ -84,3 +87,11 @@ export default () => ({
   price: getRandomPrice(100, 10),
   photo: `//picsum.photos/300/150?r=${Math.random()}`
 });
+
+export const writeDestinations = (data) => {
+  destinationsArray = data;
+};
+
+export const writeOffers = (data) => {
+  offersArray = data;
+};

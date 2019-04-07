@@ -25,3 +25,13 @@ export const filterPoint = (point, filter) => {
       return true;
   }
 };
+
+export const getFullPrice = (price, offers) => {
+  let fullPrice = parseInt(price, 10);
+  offers.forEach(function (offer) {
+    if (offer.accepted) {
+      fullPrice += parseInt(offer.price, 10);
+    }
+  });
+  return fullPrice;
+};

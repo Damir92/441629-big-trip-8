@@ -1,42 +1,41 @@
 import Component from './component.js';
 import flatpickr from 'flatpickr';
-import {typesIcon} from './data.js';
+import {typesIcon, destinationsArray, offersArray} from './data.js';
 import moment from 'moment';
 
 export default class PointEdit extends Component {
   constructor(data) {
     super();
-    this._type = data.type.name;
-    this._icon = data.type.icon;
-    this._cities = data.cities;
-    this._offers = data.offers;
-    this._description = data.description;
-    this._time = data.time;
+    this._id = data.id;
     this._price = data.price;
-    this._photo = data.photo;
+    this._type = data.type;
+    this._destination = data.destination;
+    this._offers = data.offers;
+    this._time = data.time;
 
     this._onSubmitClick = this._onSubmitClick.bind(this);
     this._onDeleteClick = this._onDeleteClick.bind(this);
     this._onTypeClick = this._onTypeClick.bind(this);
+    this._onDatasetClick = this._onDatasetClick.bind(this);
 
     this._onSubmit = null;
     this._onDelete = null;
 
-    this._flatpickrTime = null;
+    this._flatpickrStart = null;
+    this._flatpickrEnd = null;
   }
 
   _processForm(formData) {
+
     const entry = {
-      type: {
-        name: this._type,
-        icon: this._icon
-      },
-      time: {
-        start: new Date(),
-        end: new Date()
-      },
       price: 0,
-      offers: []
+      type: this._type,
+      time: {
+        start: this._time.start,
+        end: this._time.end
+      },
+      offers: this._offers,
+      destination: this._destination
     };
 
     const pointEditMapper = PointEdit.createMapper(entry);
@@ -45,28 +44,22 @@ export default class PointEdit extends Component {
       const [property, value] = pair;
 
       if (pointEditMapper[property]) {
-        if (property === `time`) {
+        if (property === `date-start` || property === `date-end`) {
           if (value === ``) {
-            pointEditMapper[property](this._time);
+            continue;
           } else {
-            const timeArr = value.split(` — `);
-            if (timeArr[0] === `` || timeArr[1] === ``) {
-              pointEditMapper[property](this._time);
-            } else {
-              const time = {
-                start: timeArr[0],
-                end: timeArr[1]
-              };
-              pointEditMapper[property](time);
-            }
+            pointEditMapper[property](value);
           }
-          continue;
-        } else if (property === `offer`) {
-          this._offers.forEach((offer) => {
-            if (offer.name === value) {
-              pointEditMapper[property](offer);
-            }
-          });
+        } else if (property === `destination`) {
+          if (value === ``) {
+            continue;
+          } else {
+            destinationsArray.forEach((item) => {
+              if (value === item.name) {
+                pointEditMapper[property](item);
+              }
+            });
+          }
         } else {
           pointEditMapper[property](value);
         }
@@ -98,11 +91,39 @@ export default class PointEdit extends Component {
   }
 
   _onTypeClick(evt) {
-    const newType = evt.target.value;
+    let newOffer = ``;
 
-    this._element.querySelector(`.travel-way__label`).innerHTML = typesIcon[newType];
-    this._element.querySelector(`.point__destination-label`).innerHTML = newType;
+    offersArray.forEach((offer) => {
+      if (evt.target.value === offer.type) {
+        newOffer = offer;
+      }
+    });
+
+    this._element.querySelector(`.travel-way__label`).innerHTML = typesIcon[newOffer.type];
+    this._element.querySelector(`.point__destination-label`).innerHTML = newOffer.type;
     this._element.querySelector(`.travel-way__toggle`).checked = false;
+    this._element.querySelector(`.point__offers-wrap`).innerHTML =
+      (Array.from(newOffer.offers).map((offer) => (`
+        <input class="point__offers-input visually-hidden" type="checkbox" id="${offer.name.replace(/ /g, `-`).toLowerCase()}" name="offer" value="${offer.name}">
+        <label for="${offer.name.replace(/ /g, `-`).toLowerCase()}" class="point__offers-label">
+          <span class="point__offer-service">${offer.name}</span> +€<span class="point__offer-price">${offer.price}</span>
+        </label>`.trim()))).join(``);
+  }
+
+  _onDatasetClick(evt) {
+    let newDestination = ``;
+
+    destinationsArray.forEach((destination) => {
+      if (evt.target.value === destination.name) {
+        newDestination = destination;
+      }
+    });
+
+    this._element.querySelector(`.point__destination-text`).innerHTML = newDestination.description;
+    this._element.querySelector(`.point__destination-images`).innerHTML =
+      (Array.from(newDestination.pictures).map((picture) => (`
+        <img src="${picture.src}" alt="${picture.description}" class="point__destination-image">
+        `.trim()))).join(``);
   }
 
   set onSubmit(fn) {
@@ -123,7 +144,7 @@ export default class PointEdit extends Component {
           </label>
 
           <div class="travel-way">
-            <label class="travel-way__label" for="travel-way__toggle">${this._icon}</label>
+            <label class="travel-way__label" for="travel-way__toggle">${typesIcon[this._type]}</label>
 
             <input type="checkbox" class="travel-way__toggle visually-hidden" id="travel-way__toggle">
 
@@ -153,20 +174,20 @@ export default class PointEdit extends Component {
           </div>
 
           <div class="point__destination-wrap">
-            <label class="point__destination-label" for="destination">${this._type}</label>
-            <input class="point__destination-input" list="destination-select" id="destination" name="destination" value="">
+            <label class="point__destination-label" for="destination">${this._type} to</label>
+            <input class="point__destination-input" list="destination-select" id="destination" name="destination" value="" placeholder="${this._destination.name}">
             <datalist id="destination-select">
-              <option value="airport"></option>
-              <option value="Geneva"></option>
-              <option value="Chamonix"></option>
-              <option value="hotel"></option>
+              ${(Array.from(destinationsArray).map((destination) => (`
+                <option value="${destination.name}"></option>
+                `.trim()))).join(``)}
             </datalist>
           </div>
 
-          <label class="point__time">
+          <div class="point__time">
             choose time
-            <input class="point__input" type="text" value="" name="time" placeholder="${moment(this._time.start).format(`HH:mm`)}&nbsp;&mdash; ${moment(this._time.end).format(`HH:mm`)}">
-          </label>
+            <input class="point__input" type="text" value="" name="date-start" placeholder="${moment(this._time.start).format(`HH:mm`)}">
+            <input class="point__input" type="text" value="" name="date-end" placeholder="${moment(this._time.end).format(`HH:mm`)}">
+          </div>
 
           <label class="point__price">
             write price
@@ -191,18 +212,20 @@ export default class PointEdit extends Component {
 
             <div class="point__offers-wrap">
               ${(Array.from(this._offers).map((offer) => (`
-                <input class="point__offers-input visually-hidden" type="checkbox" id="${offer.name.replace(/ /g, `-`).toLowerCase()}" name="offer" value="${offer.name}" checked >
-                <label for="${offer.name.replace(/ /g, `-`).toLowerCase()}" class="point__offers-label">
-                  <span class="point__offer-service">${offer.name}</span> + €<span class="point__offer-price">${offer.price}</span>
+                <input class="point__offers-input visually-hidden" type="checkbox" id="${offer.title.replace(/ /g, `-`).toLowerCase()}" name="offer" value="${offer.title}" ${offer.accepted ? `checked` : ``} >
+                <label for="${offer.title.replace(/ /g, `-`).toLowerCase()}" class="point__offers-label">
+                  <span class="point__offer-service">${offer.title}</span> +€<span class="point__offer-price">${offer.price}</span>
                 </label>`.trim()))).join(``)}
             </div>
 
           </section>
           <section class="point__destination">
             <h3 class="point__details-title">Destination</h3>
-            <p class="point__destination-text">${this._description}</p>
+            <p class="point__destination-text">${this._destination.description}</p>
             <div class="point__destination-images">
-              <img src="${this._photo}" alt="picture from place" class="point__destination-image">
+              ${(Array.from(this._destination.pictures).map((picture) => (`
+                <img src="${picture.src}" alt="${picture.description}" class="point__destination-image">
+                `.trim()))).join(``)}
             </div>
           </section>
           <input type="hidden" class="point__total-price" name="total-price" value="">
@@ -220,7 +243,10 @@ export default class PointEdit extends Component {
 
     this._element.querySelector(`.travel-way__select`).addEventListener(`change`, this._onTypeClick);
 
-    this._flatpickrTime = flatpickr(this._element.querySelector(`.point__time .point__input`), {enableTime: true, altInput: true, mode: `range`, altFormat: `H:i`, locale: {rangeSeparator: ` — `}});
+    this._element.querySelector(`.point__destination-input`).addEventListener(`change`, this._onDatasetClick);
+
+    this._flatpickrStart = flatpickr(this._element.querySelector(`.point__time [name="date-start"]`), {enableTime: true, altInput: true, altFormat: `H:i`});
+    this._flatpickrEnd = flatpickr(this._element.querySelector(`.point__time [name="date-end"]`), {enableTime: true, altInput: true, altFormat: `H:i`});
   }
 
   unbind() {
@@ -232,31 +258,60 @@ export default class PointEdit extends Component {
 
     this._element.querySelector(`.travel-way__select`).removeEventListener(`change`, this._onTypeClick);
 
-    this._flatpickrTime.destroy();
+    this._element.querySelector(`.point__destination-input`).removeEventListener(`change`, this._onDatasetClick);
+
+    this._flatpickrStart.destroy();
+    this._flatpickrEnd.destroy();
   }
 
   update(data) {
-    this._type = data.type.name;
-    this._icon = data.type.icon;
-    this._time = data.time;
     this._price = data.price;
+    this._type = data.type;
+    this._destination = data.destination;
+    this._time = data.time;
     this._offers = data.offers;
   }
 
   static createMapper(target) {
     return {
-      'offer': (value) => target.offers.push(value),
-      'travel-way': (value) => {
-        target.type.name = value;
-        target.type.icon = typesIcon[value];
-      },
-      'time': (value) => {
-        target.time.start = new Date(value.start);
-        target.time.end = new Date(value.end);
-      },
       'price': (value) => {
         target.price = value;
-      }
+      },
+      'travel-way': (value) => {
+        if (target.type !== value) {
+          offersArray.forEach((item) => {
+            if (value === item.type) {
+              target.offers = item.offers;
+            }
+          });
+          target.offers.forEach((offer) => {
+            offer.title = offer.name;
+            delete offer.name;
+          });
+          this._offers = target.offers;
+        }
+        target.offers.forEach((offer) => {
+          offer.accepted = false;
+        });
+        target.type = value;
+      },
+      'offer': (value) => {
+        target.offers.forEach((item) => {
+          if (item.title === value) {
+            item.accepted = true;
+          }
+        });
+      },
+      'destination': (value) => {
+        target.destination = value;
+      },
+      'date-start': (value) => {
+        target.time.start = new Date(value);
+      },
+      'date-end': (value) => {
+        target.time.end = new Date(value);
+      },
+
     };
   }
 }

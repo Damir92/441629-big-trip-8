@@ -1,11 +1,16 @@
-import getRandomPoint, {filters} from './data.js';
+import {filters, typesIcon, writeDestinations, writeOffers} from './data.js';
 import Filter from './filter.js';
 import Point from './point.js';
 import PointEdit from './point-edit.js';
+import {API} from './api.js';
 import {createMoneyChart, createTransportChart, createTimeSpendChart} from './stat.js';
 import {filterPoint} from './utils.js';
 
-const TEMP_MAX = 7;
+const AUTHORIZATION = `Basic dXNlckBwYXNzd37yZAo`;
+const END_POINT = `https://es8-demo-srv.appspot.com/big-trip/`;
+
+const api = new API({endPoint: END_POINT, authorization: AUTHORIZATION});
+
 const tripItem = document.querySelector(`.trip-day__items`);
 
 const removeTrip = () => {
@@ -55,10 +60,12 @@ const makeTrip = (arrayOfPoints) => {
     };
 
     editPointComponent.onSubmit = (newObject) => {
-      item.type = newObject.type;
-      item.time = newObject.time;
       item.price = newObject.price;
+      item.type = newObject.type;
+      item.destination = newObject.destination;
+      item.isFavorite = newObject.isFavorite;
       item.offers = newObject.offers;
+      item.time = newObject.time;
 
       pointComponent.update(item);
       if (filterPoint(item, getFilterName())) {
@@ -82,20 +89,26 @@ const mainContainer = document.querySelector(`main`);
 const statContainer = document.querySelector(`.statistic`);
 
 const createDataForStat = (points) => {
-  let result = [[], [], [], [], []];
+  let result = {
+    type: [],
+    legend: [],
+    price: [],
+    count: [],
+    time: []
+  };
   for (let item of points) {
-    let index = result[0].indexOf(item.type.name);
+    let index = result.type.indexOf(item.type);
     if (index === -1) {
-      let newIndex = result[0].length;
-      result[0][newIndex] = item.type.name;
-      result[1][newIndex] = item.type.icon + ` ` + item.type.name.toUpperCase();
-      result[2][newIndex] = item.price;
-      result[3][newIndex] = 1;
-      result[4][newIndex] = Math.round((item.time.end - item.time.start) / 60 / 60 / 1000);
+      let newIndex = result.type.length;
+      result.type[newIndex] = item.type;
+      result.legend[newIndex] = typesIcon[item.type] + ` ` + item.type.toUpperCase();
+      result.price[newIndex] = item.price;
+      result.count[newIndex] = 1;
+      result.time[newIndex] = Math.round((item.time.end - item.time.start) / 60 / 60 / 1000);
     } else {
-      result[2][index] += item.price;
-      result[3][index] += 1;
-      result[4][index] += Math.round((item.time.end - item.time.start) / 60 / 60 / 1000);
+      result.price[index] += item.price;
+      result.count[index] += 1;
+      result.time[index] += Math.round((item.time.end - item.time.start) / 60 / 60 / 1000);
     }
   }
   return result;
@@ -125,10 +138,21 @@ tableButton.addEventListener(`click`, () => {
 
 let arrayOfPoints = [];
 
-for (let i = 0; i < TEMP_MAX; i++) {
-  arrayOfPoints[i] = getRandomPoint();
-}
+api.getDestinations()
+  .then((data) => {
+    writeDestinations(data);
+  });
 
-makeFilter(arrayOfPoints, filters);
+api.getOffers()
+  .then((data) => {
+    writeOffers(data);
+  });
 
-makeTrip(arrayOfPoints);
+api.getPoints()
+  .then((points) => {
+    arrayOfPoints = points;
+    makeFilter(arrayOfPoints, filters);
+
+    makeTrip(arrayOfPoints);
+  });
+
