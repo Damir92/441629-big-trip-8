@@ -75,9 +75,42 @@ const makeTrip = (arrayOfPoints) => {
       editPointComponent.unrender();
     };
 
-    editPointComponent.onDelete = () => {
-      editPointComponent.unrender();
-      arrayOfPoints.splice(arrayOfPoints.indexOf(item), 1);
+    editPointComponent.onDelete = ({id}) => {
+      const block = () => {
+        editPointComponent.element.querySelectorAll(`input`).forEach((item) => {
+          item.disabled = true;
+        });
+        editPointComponent.element.querySelectorAll(`button`).forEach((item) => {
+          item.disabled = true;
+        });
+        editPointComponent.element.querySelector(`button[type="reset"]`).innerHTML = 'Deleting...';
+      }
+
+      const unblock = () => {
+        editPointComponent.element.querySelectorAll(`input`).forEach((item) => {
+          item.disabled = false;
+        });
+        editPointComponent.element.querySelectorAll(`button`).forEach((item) => {
+          item.disabled = false;
+        });
+        editPointComponent.element.querySelector(`button[type="reset"]`).innerHTML = 'Delete';
+      }
+
+      block();
+
+      api.deletePoint({id})
+        .then(() => api.getPoints())
+        .then((points) => {
+          arrayOfPoints = points;
+          makeTrip(arrayOfPoints);
+        })
+        .catch(() => {
+          editPointComponent.element.style.border = '1px solid red';
+          editPointComponent.shake();
+          unblock();
+        });
+      // editPointComponent.unrender();
+      // arrayOfPoints.splice(arrayOfPoints.indexOf(item), 1);
     };
   }
 };

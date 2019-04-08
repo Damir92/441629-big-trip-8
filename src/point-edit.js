@@ -86,7 +86,7 @@ export default class PointEdit extends Component {
     evt.preventDefault();
 
     if (typeof this._onDelete === `function`) {
-      this._onDelete();
+      this._onDelete({id: this._id});
     }
   }
 
@@ -270,6 +270,15 @@ export default class PointEdit extends Component {
     this._destination = data.destination;
     this._time = data.time;
     this._offers = data.offers;
+  }
+
+  shake() {
+    const ANIMATION_TIMEOUT = 600;
+    this._element.style.animation = `shake ${ANIMATION_TIMEOUT / 1000}s`
+
+    setTimeout(() => {
+      this._element.style.animation = ``
+    }, ANIMATION_TIMEOUT);
   }
 
   static createMapper(target) {
