@@ -68,6 +68,7 @@ const makeTrip = (arrayOfPoints) => {
       item.time = newObject.time;
 
       pointComponent.update(item);
+      console.log(pointComponent, item);
       if (filterPoint(item, getFilterName())) {
         pointComponent.render();
         tripItem.replaceChild(pointComponent.element, editPointComponent.element);
@@ -76,38 +77,21 @@ const makeTrip = (arrayOfPoints) => {
     };
 
     editPointComponent.onDelete = ({id}) => {
-      const block = () => {
-        editPointComponent.element.querySelectorAll(`input`).forEach((item) => {
-          item.disabled = true;
-        });
-        editPointComponent.element.querySelectorAll(`button`).forEach((item) => {
-          item.disabled = true;
-        });
-        editPointComponent.element.querySelector(`button[type="reset"]`).innerHTML = 'Deleting...';
-      }
 
-      const unblock = () => {
-        editPointComponent.element.querySelectorAll(`input`).forEach((item) => {
-          item.disabled = false;
-        });
-        editPointComponent.element.querySelectorAll(`button`).forEach((item) => {
-          item.disabled = false;
-        });
-        editPointComponent.element.querySelector(`button[type="reset"]`).innerHTML = 'Delete';
-      }
 
-      block();
+      editPointComponent.block();
 
       api.deletePoint({id})
         .then(() => api.getPoints())
         .then((points) => {
           arrayOfPoints = points;
           makeTrip(arrayOfPoints);
+          editPointComponent.unrender();
         })
         .catch(() => {
           editPointComponent.element.style.border = '1px solid red';
           editPointComponent.shake();
-          unblock();
+          editPointComponent.unblock();
         });
       // editPointComponent.unrender();
       // arrayOfPoints.splice(arrayOfPoints.indexOf(item), 1);
@@ -183,6 +167,7 @@ api.getOffers()
 
 api.getPoints()
   .then((points) => {
+    console.log(points);
     arrayOfPoints = points;
     makeFilter(arrayOfPoints, filters);
 

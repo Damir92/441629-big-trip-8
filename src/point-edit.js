@@ -12,6 +12,7 @@ export default class PointEdit extends Component {
     this._destination = data.destination;
     this._offers = data.offers;
     this._time = data.time;
+    this._isFavorite = data.isFavorite;
 
     this._onSubmitClick = this._onSubmitClick.bind(this);
     this._onDeleteClick = this._onDeleteClick.bind(this);
@@ -35,13 +36,15 @@ export default class PointEdit extends Component {
         end: this._time.end
       },
       offers: this._offers,
-      destination: this._destination
+      destination: this._destination,
+      isFavorite: false
     };
 
     const pointEditMapper = PointEdit.createMapper(entry);
 
     for (const pair of formData.entries()) {
       const [property, value] = pair;
+      console.log(property, value);
 
       if (pointEditMapper[property]) {
         if (property === `date-start` || property === `date-end`) {
@@ -60,6 +63,8 @@ export default class PointEdit extends Component {
               }
             });
           }
+        // } else if (property === `favorite`) {
+        //   pointEditMapper[property](value);
         } else {
           pointEditMapper[property](value);
         }
@@ -201,7 +206,7 @@ export default class PointEdit extends Component {
           </div>
 
           <div class="paint__favorite-wrap">
-            <input type="checkbox" class="point__favorite-input visually-hidden" id="favorite" name="favorite">
+            <input type="checkbox" class="point__favorite-input visually-hidden" id="favorite" name="favorite" ${this._isFavorite ? `checked` : ``}>
             <label class="point__favorite" for="favorite">favorite</label>
           </div>
         </header>
@@ -270,6 +275,27 @@ export default class PointEdit extends Component {
     this._destination = data.destination;
     this._time = data.time;
     this._offers = data.offers;
+    this._isFavorite = data.isFavorite
+  }
+
+  block() {
+    this._element.querySelectorAll(`input`).forEach((item) => {
+      item.disabled = true;
+    });
+    this._element.querySelectorAll(`button`).forEach((item) => {
+      item.disabled = true;
+    });
+    this._element.querySelector(`button[type="reset"]`).innerHTML = 'Deleting...';
+  }
+
+  unblock() {
+    this._element.querySelectorAll(`input`).forEach((item) => {
+      item.disabled = false;
+    });
+    this._element.querySelectorAll(`button`).forEach((item) => {
+      item.disabled = false;
+    });
+    this._element.querySelector(`button[type="reset"]`).innerHTML = 'Delete';
   }
 
   shake() {
@@ -320,7 +346,9 @@ export default class PointEdit extends Component {
       'date-end': (value) => {
         target.time.end = new Date(value);
       },
-
+      'favorite': (value) => {
+        target.isFavorite = Boolean(value);
+      }
     };
   }
 }

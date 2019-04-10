@@ -20,8 +20,8 @@ export class ModelPoint {
       'destination': this.destination,
       'is_favorite': this.isFavorite,
       'offers': this.offers,
-      'date_from': this.time.start,
-      'date_to': this.time.end
+      'date_from': new Date(this.time.start).getTime(),
+      'date_to': new Date(this.time.end).getTime()
     };
   }
 
@@ -30,6 +30,7 @@ export class ModelPoint {
   }
 
   static parsePoints(data) {
+    console.log(data);
     return data.map(ModelPoint.parsePoint);
   }
 }
