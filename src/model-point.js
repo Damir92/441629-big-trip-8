@@ -30,7 +30,6 @@ export class ModelPoint {
   }
 
   static parsePoints(data) {
-    console.log(data);
     return data.map(ModelPoint.parsePoint);
   }
 }

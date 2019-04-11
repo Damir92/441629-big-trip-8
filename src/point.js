@@ -30,15 +30,23 @@ export default class Point extends Component {
           </p>
           <p class="trip-point__price">&euro;&nbsp;${getFullPrice(this._price, this._offers)}</p>
           <ul class="trip-point__offers">
-            ${(Array.from(this._offers).map((offer) => (offer.accepted ? `
-              <li>
-                <button class="trip-point__offer">${offer.title} (&euro;&nbsp;${offer.price})</button>
-              </li>
-              ` : `
-              <li>
-                <button class="trip-point__offer">${offer.title} +&euro;&nbsp;${offer.price}</button>
-              </li>
-              `.trim()))).join(``)}
+
+  ${(Array.from(this._offers).reduce((result, offer, index) => {
+    if (index < 3) {
+      return result + (offer.accepted ? `
+        <li>
+          <button class="trip-point__offer">${offer.title} (&euro;&nbsp;${offer.price})</button>
+        </li>
+        ` : `
+        <li>
+          <button class="trip-point__offer">${offer.title} +&euro;&nbsp;${offer.price}</button>
+        </li>
+        `).trim();
+    } else {
+      return result;
+    }
+  }, ``))}
+
           </ul>
         </article>`;
   }

@@ -44,7 +44,6 @@ export default class PointEdit extends Component {
 
     for (const pair of formData.entries()) {
       const [property, value] = pair;
-      console.log(property, value);
 
       if (pointEditMapper[property]) {
         if (property === `date-start` || property === `date-end`) {
@@ -275,35 +274,50 @@ export default class PointEdit extends Component {
     this._destination = data.destination;
     this._time = data.time;
     this._offers = data.offers;
-    this._isFavorite = data.isFavorite
+    this._isFavorite = data.isFavorite;
   }
 
-  block() {
+  block(type) {
+    this._element.style.border = `none`;
     this._element.querySelectorAll(`input`).forEach((item) => {
       item.disabled = true;
     });
     this._element.querySelectorAll(`button`).forEach((item) => {
       item.disabled = true;
     });
-    this._element.querySelector(`button[type="reset"]`).innerHTML = 'Deleting...';
+    if (type === `delete`) {
+      this._element.querySelector(`button[type="reset"]`).innerHTML = `Deleting...`;
+    } else if (type === `update`) {
+      this._element.querySelector(`button[type="submit"]`).innerHTML = `Saving...`;
+    }
   }
 
-  unblock() {
+  unblock(type) {
     this._element.querySelectorAll(`input`).forEach((item) => {
       item.disabled = false;
     });
     this._element.querySelectorAll(`button`).forEach((item) => {
       item.disabled = false;
     });
-    this._element.querySelector(`button[type="reset"]`).innerHTML = 'Delete';
+    if (type === `delete`) {
+      this._element.querySelector(`button[type="reset"]`).innerHTML = `Delete`;
+    } else if (type === `update`) {
+      this._element.querySelector(`button[type="submit"]`).innerHTML = `Save`;
+    }
+  }
+
+  error(type) {
+    this._element.style.border = `1px solid red`;
+    this.shake();
+    this.unblock(type);
   }
 
   shake() {
     const ANIMATION_TIMEOUT = 600;
-    this._element.style.animation = `shake ${ANIMATION_TIMEOUT / 1000}s`
+    this._element.style.animation = `shake ${ANIMATION_TIMEOUT / 1000}s`;
 
     setTimeout(() => {
-      this._element.style.animation = ``
+      this._element.style.animation = ``;
     }, ANIMATION_TIMEOUT);
   }
 

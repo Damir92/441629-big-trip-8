@@ -67,34 +67,35 @@ const makeTrip = (arrayOfPoints) => {
       item.offers = newObject.offers;
       item.time = newObject.time;
 
-      pointComponent.update(item);
-      console.log(pointComponent, item);
-      if (filterPoint(item, getFilterName())) {
-        pointComponent.render();
-        tripItem.replaceChild(pointComponent.element, editPointComponent.element);
-      }
-      editPointComponent.unrender();
+      editPointComponent.block(`update`);
+
+      api.updatePoint({id: item.id, data: item.toRAW()})
+        .then((newPoint) => {
+          pointComponent.update(newPoint);
+
+          if (filterPoint(item, getFilterName())) {
+            pointComponent.render();
+            tripItem.replaceChild(pointComponent.element, editPointComponent.element);
+          }
+          editPointComponent.unrender();
+        })
+        .catch(() => {
+          editPointComponent.error(`update`);
+        });
     };
 
     editPointComponent.onDelete = ({id}) => {
-
-
-      editPointComponent.block();
+      editPointComponent.block(`delete`);
 
       api.deletePoint({id})
         .then(() => api.getPoints())
         .then((points) => {
           arrayOfPoints = points;
-          makeTrip(arrayOfPoints);
           editPointComponent.unrender();
         })
         .catch(() => {
-          editPointComponent.element.style.border = '1px solid red';
-          editPointComponent.shake();
-          editPointComponent.unblock();
+          editPointComponent.error(`delete`);
         });
-      // editPointComponent.unrender();
-      // arrayOfPoints.splice(arrayOfPoints.indexOf(item), 1);
     };
   }
 };
@@ -119,11 +120,11 @@ const createDataForStat = (points) => {
       let newIndex = result.type.length;
       result.type[newIndex] = item.type;
       result.legend[newIndex] = typesIcon[item.type] + ` ` + item.type.toUpperCase();
-      result.price[newIndex] = item.price;
+      result.price[newIndex] = parseInt(item.price, 10);
       result.count[newIndex] = 1;
       result.time[newIndex] = Math.round((item.time.end - item.time.start) / 60 / 60 / 1000);
     } else {
-      result.price[index] += item.price;
+      result.price[index] += parseInt(item.price, 10);
       result.count[index] += 1;
       result.time[index] += Math.round((item.time.end - item.time.start) / 60 / 60 / 1000);
     }
@@ -167,7 +168,6 @@ api.getOffers()
 
 api.getPoints()
   .then((points) => {
-    console.log(points);
     arrayOfPoints = points;
     makeFilter(arrayOfPoints, filters);
 
