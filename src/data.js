@@ -32,6 +32,11 @@ export const filters = [
   {name: `future`, checked: false},
   {name: `past`, checked: false}
 ];
+export const sorts = [
+  {name: `event`, checked: true},
+  {name: `time`, checked: false},
+  {name: `price`, checked: false}
+];
 
 export const getRandom = (length) => Math.floor(Math.random() * length);
 

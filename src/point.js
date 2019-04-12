@@ -1,7 +1,6 @@
 import Component from './component.js';
 import moment from 'moment';
 import {typesIcon} from './data.js';
-import {getFullPrice} from './utils.js';
 
 export default class Point extends Component {
   constructor(data) {
@@ -12,6 +11,7 @@ export default class Point extends Component {
     this._destination = data.destination;
     this._offers = data.offers;
     this._time = data.time;
+    this._totalPrice = data.totalPrice;
 
     this._onEdit = null;
   }
@@ -26,9 +26,9 @@ export default class Point extends Component {
           <h3 class="trip-point__title">${this._type.charAt(0).toUpperCase() + this._type.slice(1)} to ${this._destination.name}</h3>
           <p class="trip-point__schedule">
             <span class="trip-point__timetable">${moment(this._time.start).format(`HH:mm`)}&nbsp;&mdash; ${moment(this._time.end).format(`HH:mm`)}</span>
-            <span class="trip-point__duration">${moment.utc(this._time.end - this._time.start).format(`hh`)}h ${moment.utc(this._time.end - this._time.start).format(`mm`)}m</span>
+            <span class="trip-point__duration">${(this._time.end - this._time.start > 24 * 60 * 60 * 1000) ? (moment.utc(this._time.end - this._time.start - 24 * 60 * 60 * 1000).format(`DD`) + `d `) : ``}${moment.utc(this._time.end - this._time.start).format(`HH`)}h ${moment.utc(this._time.end - this._time.start).format(`mm`)}m</span>
           </p>
-          <p class="trip-point__price">&euro;&nbsp;${getFullPrice(this._price, this._offers)}</p>
+          <p class="trip-point__price">&euro;&nbsp;${this._totalPrice}</p>
           <ul class="trip-point__offers">
 
   ${(Array.from(this._offers).reduce((result, offer, index) => {
@@ -69,5 +69,6 @@ export default class Point extends Component {
     this._destination = data.destination;
     this._offers = data.offers;
     this._time = data.time;
+    this._totalPrice = data.totalPrice;
   }
 }

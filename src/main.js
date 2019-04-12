@@ -1,16 +1,19 @@
-import {filters, typesIcon, writeDestinations, writeOffers} from './data.js';
+import {filters, sorts, typesIcon, writeDestinations, writeOffers} from './data.js';
 import Filter from './filter.js';
+import Sort from './sort.js';
+import TotalPrice from './total-price.js';
 import Point from './point.js';
 import PointEdit from './point-edit.js';
 import {API} from './api.js';
 import {createMoneyChart, createTransportChart, createTimeSpendChart} from './stat.js';
-import {filterPoint} from './utils.js';
+import {filterPoint, sortPoint, calcPrice} from './utils.js';
 
 const AUTHORIZATION = `Basic dXNlckBwYXNzd37yZAo`;
 const END_POINT = `https://es8-demo-srv.appspot.com/big-trip/`;
 
 const api = new API({endPoint: END_POINT, authorization: AUTHORIZATION});
 
+const tripTotal = document.querySelector(`.trip__total`);
 const tripItem = document.querySelector(`.trip-day__items`);
 
 const removeTrip = () => {
@@ -38,16 +41,42 @@ const makeFilter = (points, filtersArr) => {
           filteredPoints.push(item);
         }
       }
+      sortTrip(filteredPoints, sorts);
       makeTrip(filteredPoints);
     };
 
   }
 };
 
-const makeTrip = (arrayOfPoints) => {
+const sortTrip = (points, sortsArray) => {
+  const tripSort = document.querySelector(`.trip-sorting`);
+  tripSort.innerHTML = ``;
+
+  for (let sort of sortsArray) {
+    const sortComponent = new Sort(sort);
+    tripSort.appendChild(sortComponent.render());
+
+    sortComponent.onSort = () => {
+      makeTrip(sortPoint(points, sortComponent._name));
+    };
+  }
+};
+
+const makeTrip = (arrayOfItems) => {
   removeTrip();
 
-  for (let item of arrayOfPoints) {
+  tripTotal.innerHTML = ``;
+  let totalPriceComponent = new TotalPrice(calcPrice(arrayOfPoints));
+  tripTotal.appendChild(totalPriceComponent.render());
+
+  const updatePrice = (array) => {
+    totalPriceComponent.unrender();
+    totalPriceComponent = new TotalPrice(calcPrice(array));
+    tripTotal.appendChild(totalPriceComponent.render());
+  };
+
+
+  for (let item of arrayOfItems) {
     const pointComponent = new Point(item);
     const editPointComponent = new PointEdit(item);
 
@@ -66,12 +95,15 @@ const makeTrip = (arrayOfPoints) => {
       item.isFavorite = newObject.isFavorite;
       item.offers = newObject.offers;
       item.time = newObject.time;
+      item.totalPrice = newObject.totalPrice;
 
       editPointComponent.block(`update`);
 
       api.updatePoint({id: item.id, data: item.toRAW()})
         .then((newPoint) => {
           pointComponent.update(newPoint);
+
+          updatePrice(arrayOfPoints);
 
           if (filterPoint(item, getFilterName())) {
             pointComponent.render();
@@ -92,10 +124,19 @@ const makeTrip = (arrayOfPoints) => {
         .then((points) => {
           arrayOfPoints = points;
           editPointComponent.unrender();
+          updatePrice(arrayOfPoints);
         })
         .catch(() => {
           editPointComponent.error(`delete`);
         });
+    };
+
+    editPointComponent.onButton = (evt) => {
+      if (evt.keyCode === 27) {
+        pointComponent.render();
+        tripItem.replaceChild(pointComponent.element, editPointComponent.element);
+        editPointComponent.unrender();
+      }
     };
   }
 };
@@ -156,6 +197,8 @@ tableButton.addEventListener(`click`, () => {
 
 let arrayOfPoints = [];
 
+tripItem.innerHTML = `Loading route...`;
+
 api.getDestinations()
   .then((data) => {
     writeDestinations(data);
@@ -170,7 +213,11 @@ api.getPoints()
   .then((points) => {
     arrayOfPoints = points;
     makeFilter(arrayOfPoints, filters);
+    sortTrip(arrayOfPoints, sorts);
 
+    tripItem.innerHTML = ``;
     makeTrip(arrayOfPoints);
+  })
+  .catch(() => {
+    tripItem.innerHTML = `Something went wrong while loading your route info. Check your connection or try again later`;
   });
-

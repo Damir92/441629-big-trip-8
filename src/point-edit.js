@@ -13,14 +13,17 @@ export default class PointEdit extends Component {
     this._offers = data.offers;
     this._time = data.time;
     this._isFavorite = data.isFavorite;
+    this._totalPrice = data.totalPrice;
 
     this._onSubmitClick = this._onSubmitClick.bind(this);
     this._onDeleteClick = this._onDeleteClick.bind(this);
     this._onTypeClick = this._onTypeClick.bind(this);
     this._onDatasetClick = this._onDatasetClick.bind(this);
+    this._onButtonPush = this._onButtonPush.bind(this);
 
     this._onSubmit = null;
     this._onDelete = null;
+    this._onButton = null;
 
     this._flatpickrStart = null;
     this._flatpickrEnd = null;
@@ -37,7 +40,8 @@ export default class PointEdit extends Component {
       },
       offers: this._offers,
       destination: this._destination,
-      isFavorite: false
+      isFavorite: false,
+      totalPrice: 0
     };
 
     const pointEditMapper = PointEdit.createMapper(entry);
@@ -62,8 +66,6 @@ export default class PointEdit extends Component {
               }
             });
           }
-        // } else if (property === `favorite`) {
-        //   pointEditMapper[property](value);
         } else {
           pointEditMapper[property](value);
         }
@@ -130,12 +132,24 @@ export default class PointEdit extends Component {
         `.trim()))).join(``);
   }
 
+  _onButtonPush(evt) {
+    evt.preventDefault();
+
+    if (typeof this._onButton === `function`) {
+      this._onButton(evt);
+    }
+  }
+
   set onSubmit(fn) {
     this._onSubmit = fn;
   }
 
   set onDelete(fn) {
     this._onDelete = fn;
+  }
+
+  set onButton(fn) {
+    this._onButton = fn;
   }
 
   get template() {
@@ -232,7 +246,15 @@ export default class PointEdit extends Component {
                 `.trim()))).join(``)}
             </div>
           </section>
-          <input type="hidden" class="point__total-price" name="total-price" value="">
+
+          <input type="hidden" class="point__total-price" name="total-price"value="
+  ${(Array.from(this._offers).reduce((sum, offer) => {
+    if (offer.accepted) {
+      return sum + offer.price;
+    } else {
+      return sum;
+    }
+  }, parseInt(this._price, 10)))}">
         </section>
       </form>
     </article>`;
@@ -249,6 +271,8 @@ export default class PointEdit extends Component {
 
     this._element.querySelector(`.point__destination-input`).addEventListener(`change`, this._onDatasetClick);
 
+    window.addEventListener(`keydown`, this._onButtonPush);
+
     this._flatpickrStart = flatpickr(this._element.querySelector(`.point__time [name="date-start"]`), {enableTime: true, altInput: true, altFormat: `H:i`});
     this._flatpickrEnd = flatpickr(this._element.querySelector(`.point__time [name="date-end"]`), {enableTime: true, altInput: true, altFormat: `H:i`});
   }
@@ -264,6 +288,8 @@ export default class PointEdit extends Component {
 
     this._element.querySelector(`.point__destination-input`).removeEventListener(`change`, this._onDatasetClick);
 
+    window.removeEventListener(`keydown`, this._onButtonPush);
+
     this._flatpickrStart.destroy();
     this._flatpickrEnd.destroy();
   }
@@ -275,6 +301,7 @@ export default class PointEdit extends Component {
     this._time = data.time;
     this._offers = data.offers;
     this._isFavorite = data.isFavorite;
+    this._totalPrice = data.totalPrice;
   }
 
   block(type) {
@@ -324,7 +351,7 @@ export default class PointEdit extends Component {
   static createMapper(target) {
     return {
       'price': (value) => {
-        target.price = value;
+        target.price = parseInt(value, 10);
       },
       'travel-way': (value) => {
         if (target.type !== value) {
@@ -362,6 +389,11 @@ export default class PointEdit extends Component {
       },
       'favorite': (value) => {
         target.isFavorite = Boolean(value);
+      },
+      'total-price': () => {
+        target.totalPrice = target.offers.reduce((sum, item) => {
+          return item.accepted ? sum + item.price : sum;
+        }, parseInt(target.price, 10));
       }
     };
   }

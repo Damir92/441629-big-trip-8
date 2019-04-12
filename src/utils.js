@@ -26,12 +26,34 @@ export const filterPoint = (point, filter) => {
   }
 };
 
-export const getFullPrice = (price, offers) => {
-  let fullPrice = parseInt(price, 10);
-  offers.forEach(function (offer) {
-    if (offer.accepted) {
-      fullPrice += parseInt(offer.price, 10);
-    }
-  });
-  return fullPrice;
+export const sortPoint = (array, sortName) => {
+  switch (sortName) {
+    case `event`:
+      return array.sort((a, b) => {
+        return a.time.start - b.time.start;
+      });
+
+    case `time`:
+      return array.sort((a, b) => {
+        return (b.time.end - b.time.start) - (a.time.end - a.time.start);
+      });
+
+    case `price`:
+      return array.sort((a, b) => {
+        return b.totalPrice - a.totalPrice;
+      });
+
+    default:
+      return array;
+  }
+};
+
+export const calcPrice = (array) => {
+  let result = 0;
+  for (let item of array) {
+    result += item.offers.reduce((sum, offer) => {
+      return offer.accepted ? sum + parseInt(offer.price, 10) : sum;
+    }, parseInt(item.price, 10));
+  }
+  return result;
 };

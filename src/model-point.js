@@ -10,6 +10,9 @@ export class ModelPoint {
       start: new Date(data[`date_from`]),
       end: new Date(data[`date_to`])
     };
+    this.totalPrice = data[`offers`].reduce((sum, offer) => {
+      return offer.accepted ? sum + offer.price : sum;
+    }, this[`price`]);
   }
 
   toRAW() {
