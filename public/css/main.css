@@ -339,7 +339,7 @@ input[type=radio]:checked + .trip-sorting__item {
   list-style: none;
   margin: 0;
   padding: 0;
-  width: 385px;
+  width: 390px;
 }
 
 .trip-point__offer {

@@ -9,5 +9,4 @@ export default class TotalPrice extends Component {
   get template() {
     return `<span class="trip__total-cost">Total: &euro;&nbsp;${this._price}</span>`;
   }
-
 }

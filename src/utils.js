@@ -1,9 +1,3 @@
-export const makeTime = (date) => {
-  const hours = date.getHours() < 10 ? `0` + date.getHours() : date.getHours();
-  const minutes = date.getMinutes() < 10 ? `0` + date.getMinutes() : date.getMinutes();
-  return hours + `:` + minutes;
-};
-
 export const createElement = (template) => {
   const newElement = document.createElement(`div`);
   newElement.innerHTML = template;
@@ -56,4 +50,26 @@ export const calcPrice = (array) => {
     }, parseInt(item.price, 10));
   }
   return result;
+};
+
+export const getNewPoint = (array) => {
+  return {
+    type: array[0].type,
+    price: ``,
+    totalPrice: ``,
+    time: {
+      start: Date.now(),
+      end: Date.now()
+    },
+    offers: [],
+    isFavorite: false,
+    id: array.reduce((max, current) => {
+      return current.id >= max ? parseInt(current.id, 10) + 1 : max;
+    }, parseInt(array[0].id, 10)),
+    destination: {
+      name: ``,
+      description: ``,
+      pictures: []
+    }
+  };
 };
