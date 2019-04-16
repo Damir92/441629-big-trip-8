@@ -14,11 +14,25 @@ import moment from 'moment';
 
 const AUTHORIZATION = `Basic dXNlckBwYXNzd37yZAsdf=${Math.random()}`;
 const END_POINT = `https://es8-demo-srv.appspot.com/big-trip/`;
+const ERROR_CLASS = `error_message`;
+const ERROR_MESSAGE = `<div class="${ERROR_CLASS}" style="text-align: center; padding: 10px;">Something went wrong while loading your route info. Check your connection or try again later</div>`;
 
 const api = new API({endPoint: END_POINT, authorization: AUTHORIZATION});
 
 const tripTotal = document.querySelector(`.trip__total`);
 const trip = document.querySelector(`.trip-points`);
+
+const showError = (elem) => {
+  if (!elem.querySelector(`.` + ERROR_CLASS)) {
+    elem.insertAdjacentHTML(`afterBegin`, ERROR_MESSAGE);
+  }
+}
+
+const removeError = (elem) => {
+  if (elem.querySelector(`.` + ERROR_CLASS)) {
+    elem.querySelector(`.` + ERROR_CLASS).remove();
+  }
+}
 
 const removeTrip = () => {
   trip.querySelectorAll(`section`).forEach((elem) => {
@@ -110,6 +124,7 @@ const makeTrip = (arrayOfItems) => {
       item.totalPrice = newObject.totalPrice;
 
       editPointComponent.block(`update`);
+      removeError(editPointComponent.element);
 
       api.updatePoint({id: item.id, data: item.toRAW()})
         .then(() => api.getPoints())
@@ -121,12 +136,14 @@ const makeTrip = (arrayOfItems) => {
           makeTrip(arrayOfPoints);
         })
         .catch(() => {
+          showError(editPointComponent.element);
           editPointComponent.error(`update`);
         });
     };
 
     editPointComponent.onDelete = ({id}) => {
       editPointComponent.block(`delete`);
+      removeError(editPointComponent.element);
 
       api.deletePoint({id})
         .then(() => api.getPoints())
@@ -139,7 +156,8 @@ const makeTrip = (arrayOfItems) => {
           }
           updatePrice(arrayOfPoints);
         })
-        .catch(() => {
+        .catch((err) => {
+          showError(editPointComponent.element);
           editPointComponent.error(`delete`);
         });
     };
@@ -170,6 +188,7 @@ document.querySelector(`.trip-controls__new-event`).addEventListener(`click`, ()
     item.totalPrice = newObject.totalPrice;
 
     newPointComponent.block(`update`);
+    removeError(newPointComponent.element);
 
     api.createPoint({point: item.toRAW()})
       .then(() => api.getPoints())
@@ -182,7 +201,8 @@ document.querySelector(`.trip-controls__new-event`).addEventListener(`click`, ()
         sortTrip(arrayOfPoints);
         makeTrip(arrayOfPoints);
       })
-      .catch(() => {
+      .catch((err) => {
+        showError(newPointComponent.element);
         newPointComponent.error(`update`);
       });
   };
@@ -263,7 +283,6 @@ api.getDestinations()
 
 api.getOffers()
   .then((data) => {
-    console.log(data);
     writeOffers(data);
   });
 

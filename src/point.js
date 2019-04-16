@@ -26,7 +26,7 @@ export default class Point extends Component {
           <h3 class="trip-point__title">${this._type.charAt(0).toUpperCase() + this._type.slice(1)} to ${this._destination.name}</h3>
           <p class="trip-point__schedule">
             <span class="trip-point__timetable">${moment(this._time.start).format(`HH:mm`)}&nbsp;&mdash; ${moment(this._time.end).format(`HH:mm`)}</span>
-            <span class="trip-point__duration">${(this._time.end - this._time.start > 24 * 60 * 60 * 1000) ? (moment.utc(this._time.end - this._time.start - 24 * 60 * 60 * 1000).format(`DD`) + `d `) : ``}${moment.utc(this._time.end - this._time.start).format(`HH`)}h ${moment.utc(this._time.end - this._time.start).format(`mm`)}m</span>
+            <span class="trip-point__duration">${(this._time.end - this._time.start > 24 * 60 * 60 * 1000) ? (moment.utc(this._time.end - this._time.start - 24 * 60 * 60 * 1000).format(`DD`) + `d `) : ``}${(this._time.end - this._time.start > 60 * 60 * 1000) ? (moment.utc(this._time.end - this._time.start).format(`HH`) + `h `) : ``}${moment.utc(this._time.end - this._time.start).format(`mm`)}m</span>
           </p>
           <p class="trip-point__price">&euro;&nbsp;${this._totalPrice}</p>
           <ul class="trip-point__offers">

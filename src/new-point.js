@@ -112,15 +112,20 @@ export default class PointEdit extends Component {
       }
     });
 
-    this._element.querySelector(`.travel-way__label`).innerHTML = typesIcon[newOffer.type];
-    this._element.querySelector(`.point__destination-label`).innerHTML = newOffer.type;
-    this._element.querySelector(`.travel-way__toggle`).checked = false;
-    this._element.querySelector(`.point__offers-wrap`).innerHTML =
+    if (newOffer === ``) {
+      newOffer = { type: evt.target.value };
+    } else {
+      this._element.querySelector(`.point__offers-wrap`).innerHTML =
       (Array.from(newOffer.offers).map((offer) => (`
-        <input class="point__offers-input visually-hidden" type="checkbox" id="${offer.name.replace(/ /g, `-`).toLowerCase()}" name="offer" value="${offer.name}">
-        <label for="${offer.name.replace(/ /g, `-`).toLowerCase()}" class="point__offers-label">
+        <input class="point__offers-input visually-hidden" type="checkbox" id="${offer.name.replace(/ /g, `-`).toLowerCase()}-${this._id}" name="offer" value="${offer.name}">
+        <label for="${offer.name.replace(/ /g, `-`).toLowerCase()}-${this._id}" class="point__offers-label">
           <span class="point__offer-service">${offer.name}</span> +€<span class="point__offer-price">${offer.price}</span>
         </label>`.trim()))).join(``);
+    }
+
+    this._element.querySelector(`.travel-way__label`).innerHTML = typesIcon[newOffer.type];
+    this._element.querySelector(`.point__destination-label`).innerHTML = newOffer.type + ` to`;
+    this._element.querySelector(`.travel-way__toggle`).checked = false;
   }
 
   _onDatasetClick(evt) {
@@ -167,38 +172,23 @@ export default class PointEdit extends Component {
           </label>
 
           <div class="travel-way">
-            <label class="travel-way__label" for="travel-way__toggle">${typesIcon[this._type]}</label>
+            <label class="travel-way__label" for="travel-way__toggle-${this._id}">${typesIcon[this._type]}</label>
 
-            <input type="checkbox" class="travel-way__toggle visually-hidden" id="travel-way__toggle">
+            <input type="checkbox" class="travel-way__toggle visually-hidden" id="travel-way__toggle-${this._id}">
 
             <div class="travel-way__select">
               <div class="travel-way__select-group">
-                <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-taxi" name="travel-way" value="taxi" ${this._type === `taxi` ? `checked` : ``}>
-                <label class="travel-way__select-label" for="travel-way-taxi">🚕 taxi</label>
-
-                <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-bus" name="travel-way" value="bus" ${this._type === `bus` ? `checked` : ``}>
-                <label class="travel-way__select-label" for="travel-way-bus">🚌 bus</label>
-
-                <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-train" name="travel-way" value="train" ${this._type === `train` ? `checked` : ``}>
-                <label class="travel-way__select-label" for="travel-way-train">🚂 train</label>
-
-                <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-flight" name="travel-way" value="flight" ${this._type === `flight` ? `checked` : ``}>
-                <label class="travel-way__select-label" for="travel-way-flight">✈️ flight</label>
-              </div>
-
-              <div class="travel-way__select-group">
-                <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-check-in" name="travel-way" value="check-in" ${this._type === `check-in` ? `checked` : ``}>
-                <label class="travel-way__select-label" for="travel-way-check-in">🏨 check-in</label>
-
-                <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-sightseeing" name="travel-way" value="sightseeing" ${this._type === `sightseeing` ? `checked` : ``}>
-                <label class="travel-way__select-label" for="travel-way-sightseeing">🏛 sightseeing</label>
+                ${Object.keys(typesIcon).map((type) => (`
+                  <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-${type}-${this._id}" name="travel-way" value="${type}" ${this._type === type ? `checked` : ``}>
+                  <label class="travel-way__select-label" for="travel-way-${type}-${this._id}">${typesIcon[type]} ${type}</label>
+                  `.trim())).join(``)}
               </div>
             </div>
           </div>
 
           <div class="point__destination-wrap">
-            <label class="point__destination-label" for="destination">${this._type} to</label>
-            <input class="point__destination-input" list="destination-select" id="destination" name="destination" value="" placeholder="${this._destination.name}" required>
+            <label class="point__destination-label" for="destination-${this._id}">${this._type} to</label>
+            <input class="point__destination-input" list="destination-select" id="destination-${this._id}" name="destination" value="" placeholder="${this._destination.name}" required>
             <datalist id="destination-select">
               ${(Array.from(destinationsArray).map((destination) => (`
                 <option value="${destination.name}"></option>
@@ -224,8 +214,8 @@ export default class PointEdit extends Component {
           </div>
 
           <div class="paint__favorite-wrap">
-            <input type="checkbox" class="point__favorite-input visually-hidden" id="favorite" name="favorite" ${this._isFavorite ? `checked` : ``}>
-            <label class="point__favorite" for="favorite">favorite</label>
+            <input type="checkbox" class="point__favorite-input visually-hidden" id="favorite-${this._id}" name="favorite" ${this._isFavorite ? `checked` : ``}>
+            <label class="point__favorite" for="favorite-${this._id}">favorite</label>
           </div>
         </header>
 
@@ -235,8 +225,8 @@ export default class PointEdit extends Component {
 
             <div class="point__offers-wrap">
               ${(Array.from(this._offers).map((offer) => (`
-                <input class="point__offers-input visually-hidden" type="checkbox" id="${offer.title.replace(/ /g, `-`).toLowerCase()}" name="offer" value="${offer.title}" ${offer.accepted ? `checked` : ``} >
-                <label for="${offer.title.replace(/ /g, `-`).toLowerCase()}" class="point__offers-label">
+                <input class="point__offers-input visually-hidden" type="checkbox" id="${offer.title.replace(/ /g, `-`).toLowerCase()}-${this._id}" name="offer" value="${offer.title}" ${offer.accepted ? `checked` : ``} >
+                <label for="${offer.title.replace(/ /g, `-`).toLowerCase()}-${this._id}" class="point__offers-label">
                   <span class="point__offer-service">${offer.title}</span> +€<span class="point__offer-price">${offer.price}</span>
                 </label>`.trim()))).join(``)}
             </div>
