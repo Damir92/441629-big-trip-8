@@ -26,11 +26,11 @@ const removeTrip = () => {
   });
 };
 
-const makeFilter = (points, filtersArr) => {
+const makeFilter = (points) => {
   const tripFilter = document.querySelector(`.trip-filter`);
   tripFilter.innerHTML = ``;
 
-  for (let filter of filtersArr) {
+  for (let filter of filters) {
     const filterComponent = new Filter(filter);
     tripFilter.appendChild(filterComponent.render());
 
@@ -41,18 +41,17 @@ const makeFilter = (points, filtersArr) => {
           filteredPoints.push(item);
         }
       }
-      sortTrip(filteredPoints, sorts);
+      sortTrip(filteredPoints);
       makeTrip(filteredPoints);
     };
-
   }
 };
 
-const sortTrip = (points, sortsArray) => {
+const sortTrip = (points) => {
   const tripSort = document.querySelector(`.trip-sorting`);
   tripSort.innerHTML = ``;
 
-  for (let sort of sortsArray) {
+  for (let sort of sorts) {
     const sortComponent = new Sort(sort);
     tripSort.appendChild(sortComponent.render());
 
@@ -179,6 +178,8 @@ document.querySelector(`.trip-controls__new-event`).addEventListener(`click`, ()
           return a.time.start - b.time.start;
         });
         trip.innerHTML = ``;
+        makeFilter(arrayOfPoints);
+        sortTrip(arrayOfPoints);
         makeTrip(arrayOfPoints);
       })
       .catch(() => {
@@ -262,6 +263,7 @@ api.getDestinations()
 
 api.getOffers()
   .then((data) => {
+    console.log(data);
     writeOffers(data);
   });
 
@@ -270,8 +272,8 @@ api.getPoints()
     arrayOfPoints = points.sort((a, b) => {
       return a.time.start - b.time.start;
     });
-    makeFilter(arrayOfPoints, filters);
-    sortTrip(arrayOfPoints, sorts);
+    makeFilter(arrayOfPoints);
+    sortTrip(arrayOfPoints);
 
     trip.innerHTML = ``;
     makeTrip(arrayOfPoints);

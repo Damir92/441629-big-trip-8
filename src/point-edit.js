@@ -100,6 +100,7 @@ export default class PointEdit extends Component {
     let newOffer = ``;
 
     offersArray.forEach((offer) => {
+      console.log(evt.target.value, offer.type);
       if (evt.target.value === offer.type) {
         newOffer = offer;
       }
@@ -133,8 +134,6 @@ export default class PointEdit extends Component {
   }
 
   _onButtonPush(evt) {
-    evt.preventDefault();
-
     if (typeof this._onButton === `function`) {
       this._onButton(evt);
     }
@@ -168,6 +167,10 @@ export default class PointEdit extends Component {
 
             <div class="travel-way__select">
               <div class="travel-way__select-group">
+                ${Object.keys(typesIcon).map((type) => (`
+                  <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-${type}" name="travel-way" value="${type}" ${this._type === type ? `checked` : ``}>
+                  <label class="travel-way__select-label" for="travel-way-${type}">${typesIcon[type]} ${type}</label>
+                  `.trim())).join(``)}
                 <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-taxi" name="travel-way" value="taxi" ${this._type === `taxi` ? `checked` : ``}>
                 <label class="travel-way__select-label" for="travel-way-taxi">🚕 taxi</label>
 
@@ -185,7 +188,7 @@ export default class PointEdit extends Component {
                 <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-check-in" name="travel-way" value="check-in" ${this._type === `check-in` ? `checked` : ``}>
                 <label class="travel-way__select-label" for="travel-way-check-in">🏨 check-in</label>
 
-                <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-sightseeing" name="travel-way" value="sight-seeing" ${this._type === `sight-seeing` ? `checked` : ``}>
+                <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-sightseeing" name="travel-way" value="sightseeing" ${this._type === `sight-seeing` ? `checked` : ``}>
                 <label class="travel-way__select-label" for="travel-way-sightseeing">🏛 sightseeing</label>
               </div>
             </div>
