@@ -11,14 +11,6 @@ export default class Filter extends Component {
     this._onFilter = null;
   }
 
-  _onFilterClick(evt) {
-    evt.preventDefault();
-
-    if (typeof this._onFilter === `function`) {
-      this._onFilter();
-    }
-  }
-
   set onFilter(fn) {
     this._onFilter = fn;
   }
@@ -40,6 +32,14 @@ export default class Filter extends Component {
     </span>`.trim();
   }
 
+  _onFilterClick(evt) {
+    evt.preventDefault();
+
+    if (typeof this._onFilter === `function`) {
+      this._onFilter();
+    }
+  }
+
   bind() {
     this._element.querySelector(`input`).addEventListener(`change`, this._onFilterClick);
   }
@@ -47,5 +47,4 @@ export default class Filter extends Component {
   unbind() {
     this._element.querySelector(`input`).removeEventListener(`change`, this._onFilterClick);
   }
-
 }

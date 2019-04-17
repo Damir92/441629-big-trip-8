@@ -9,22 +9,15 @@ export const typesIcon = {
   'check-in': `🏨`,
   'sightseeing': `🏛️`,
   'restaurant': `🍴`};
-// export const typesIcon = [
-//   { name: 'taxi', icon: `🚕` },
-//   { name: 'bus', icon: `🚌` },
-//   { name: 'train', icon: `🚂` },
-//   { name: 'ship', icon: `🛳️` },
-//   { name: 'transport', icon: `🚊` },
-//   { name: 'drive', icon: `🚗`},
-//   { name: 'flight', icon: `✈️` },
-//   { name: 'check-in', icon: `🏨`},
-//   { name: 'sightseeing', icon: `🏛️`},
-//   { name: 'restaurant', icon: `🍴` }
-// ];
 
-export let destinationsArray = [];
+export const ERROR_CLASS = `error_message`;
 
-export let offersArray = [];
+export const ERROR_MESSAGE = `<div class="${ERROR_CLASS}" style="text-align: center; padding: 10px;">Something went wrong while loading your route info. Check your connection or try again later</div>`;
+
+export const additionalData = {
+  destinationsArray: [],
+  offersArray: []
+};
 
 export const filters = [
   {name: `everything`, checked: true},
@@ -39,9 +32,9 @@ export const sorts = [
 ];
 
 export const writeDestinations = (data) => {
-  destinationsArray = data;
+  additionalData.destinationsArray = data;
 };
 
 export const writeOffers = (data) => {
-  offersArray = data;
+  additionalData.offersArray = data;
 };

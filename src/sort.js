@@ -11,14 +11,6 @@ export default class Sort extends Component {
     this._onSort = null;
   }
 
-  _onSortClick(evt) {
-    evt.preventDefault();
-
-    if (typeof this._onSort === `function`) {
-      this._onSort();
-    }
-  }
-
   set onSort(fn) {
     this._onSort = fn;
   }
@@ -40,6 +32,15 @@ export default class Sort extends Component {
         ${this._name}
       </label>
     </span>`.trim();
+  }
+
+
+  _onSortClick(evt) {
+    evt.preventDefault();
+
+    if (typeof this._onSort === `function`) {
+      this._onSort();
+    }
   }
 
   bind() {

@@ -1,4 +1,4 @@
-export default class NewModel {
+export default class ModelNewPoint {
   constructor(data) {
     this.id = data.id;
     this.price = +data.price;

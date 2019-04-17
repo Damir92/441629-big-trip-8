@@ -1,7 +1,9 @@
 import Component from './component.js';
 import flatpickr from 'flatpickr';
-import {typesIcon, destinationsArray, offersArray} from './data.js';
+import {typesIcon, additionalData, ERROR_CLASS, ERROR_MESSAGE} from './data.js';
 import moment from 'moment';
+
+const ANIMATION_TIMEOUT = 600;
 
 export default class PointEdit extends Component {
   constructor(data) {
@@ -27,120 +29,8 @@ export default class PointEdit extends Component {
 
     this._flatpickrStart = null;
     this._flatpickrEnd = null;
-  }
 
-  _processForm(formData) {
-
-    const entry = {
-      price: 0,
-      type: this._type,
-      time: {
-        start: this._time.start,
-        end: this._time.end
-      },
-      offers: this._offers,
-      destination: this._destination,
-      isFavorite: false,
-      totalPrice: 0
-    };
-
-    const pointEditMapper = PointEdit.createMapper(entry);
-
-    for (const pair of formData.entries()) {
-      const [property, value] = pair;
-
-      if (pointEditMapper[property]) {
-        if (property === `date-start` || property === `date-end`) {
-          if (value === ``) {
-            continue;
-          } else {
-            pointEditMapper[property](value);
-          }
-        } else if (property === `destination`) {
-          if (value === ``) {
-            continue;
-          } else {
-            destinationsArray.forEach((item) => {
-              if (value === item.name) {
-                pointEditMapper[property](item);
-              }
-            });
-          }
-        } else {
-          pointEditMapper[property](value);
-        }
-      }
-    }
-
-    return entry;
-  }
-
-  _onSubmitClick(evt) {
-    evt.preventDefault();
-
-    const formData = new FormData(this._element.querySelector(`form`));
-    const newData = this._processForm(formData);
-
-    if (typeof this._onSubmit === `function`) {
-      this._onSubmit(newData);
-    }
-
-    this.update(newData);
-  }
-
-  _onDeleteClick(evt) {
-    evt.preventDefault();
-
-    if (typeof this._onDelete === `function`) {
-      this._onDelete({id: this._id});
-    }
-  }
-
-  _onTypeClick(evt) {
-    let newOffer = ``;
-
-    offersArray.forEach((offer) => {
-      if (evt.target.value === offer.type) {
-        newOffer = offer;
-      }
-    });
-
-    if (newOffer === ``) {
-      newOffer = { type: evt.target.value };
-    } else {
-      this._element.querySelector(`.point__offers-wrap`).innerHTML =
-      (Array.from(newOffer.offers).map((offer) => (`
-        <input class="point__offers-input visually-hidden" type="checkbox" id="${offer.name.replace(/ /g, `-`).toLowerCase()}-${this._id}" name="offer" value="${offer.name}">
-        <label for="${offer.name.replace(/ /g, `-`).toLowerCase()}-${this._id}" class="point__offers-label">
-          <span class="point__offer-service">${offer.name}</span> +€<span class="point__offer-price">${offer.price}</span>
-        </label>`.trim()))).join(``);
-    }
-
-    this._element.querySelector(`.travel-way__label`).innerHTML = typesIcon[newOffer.type];
-    this._element.querySelector(`.point__destination-label`).innerHTML = newOffer.type + ` to`;
-    this._element.querySelector(`.travel-way__toggle`).checked = false;
-  }
-
-  _onDatasetClick(evt) {
-    let newDestination = ``;
-
-    destinationsArray.forEach((destination) => {
-      if (evt.target.value === destination.name) {
-        newDestination = destination;
-      }
-    });
-
-    this._element.querySelector(`.point__destination-text`).innerHTML = newDestination.description;
-    this._element.querySelector(`.point__destination-images`).innerHTML =
-      (Array.from(newDestination.pictures).map((picture) => (`
-        <img src="${picture.src}" alt="${picture.description}" class="point__destination-image">
-        `.trim()))).join(``);
-  }
-
-  _onButtonPush(evt) {
-    if (typeof this._onButton === `function`) {
-      this._onButton(evt);
-    }
+    this._formContainer = null;
   }
 
   set onSubmit(fn) {
@@ -181,9 +71,9 @@ export default class PointEdit extends Component {
 
           <div class="point__destination-wrap">
             <label class="point__destination-label" for="destination-${this._id}">${this._type} to</label>
-            <input class="point__destination-input" list="destination-select" id="destination-${this._id}" name="destination" value="" placeholder="${this._destination.name}">
+            <input class="point__destination-input" list="destination-select-${this._id}" id="destination-${this._id}" name="destination" value="" placeholder="${this._destination.name}">
             <datalist id="destination-select-${this._id}">
-              ${(Array.from(destinationsArray).map((destination) => (`
+              ${(Array.from(additionalData.destinationsArray).map((destination) => (`
                 <option value="${destination.name}"></option>
                 `.trim()))).join(``)}
             </datalist>
@@ -248,32 +138,140 @@ export default class PointEdit extends Component {
     </article>`;
   }
 
+  _processForm(formData) {
+
+    const entry = {
+      price: 0,
+      type: this._type,
+      time: {
+        start: this._time.start,
+        end: this._time.end
+      },
+      offers: this._offers,
+      destination: this._destination,
+      isFavorite: false,
+      totalPrice: 0
+    };
+
+    const pointEditMapper = PointEdit.createMapper(entry);
+
+    for (const pair of formData.entries()) {
+      const [property, value] = pair;
+
+      if (pointEditMapper[property]) {
+        if (property === `date-start` || property === `date-end`) {
+          if (value === ``) {
+            continue;
+          } else {
+            pointEditMapper[property](value);
+          }
+        } else if (property === `destination`) {
+          if (value === ``) {
+            continue;
+          } else {
+            additionalData.destinationsArray.forEach((item) => {
+              if (value === item.name) {
+                pointEditMapper[property](item);
+              }
+            });
+          }
+        } else {
+          pointEditMapper[property](value);
+        }
+      }
+    }
+
+    return entry;
+  }
+
+  _onSubmitClick(evt) {
+    evt.preventDefault();
+
+    const formData = new FormData(this._element.querySelector(`form`));
+    const newData = this._processForm(formData);
+
+    if (typeof this._onSubmit === `function`) {
+      this._onSubmit(newData);
+    }
+
+    this.update(newData);
+  }
+
+  _onDeleteClick(evt) {
+    evt.preventDefault();
+
+    if (typeof this._onDelete === `function`) {
+      this._onDelete({id: this._id});
+    }
+  }
+
+  _onTypeClick(evt) {
+    let newOffer = ``;
+
+    additionalData.offersArray.forEach((offer) => {
+      if (evt.target.value === offer.type) {
+        newOffer = offer;
+      }
+    });
+
+    if (newOffer === ``) {
+      newOffer = {type: evt.target.value};
+    } else {
+      this._element.querySelector(`.point__offers-wrap`).innerHTML =
+      (Array.from(newOffer.offers).map((offer) => (`
+        <input class="point__offers-input visually-hidden" type="checkbox" id="${offer.name.replace(/ /g, `-`).toLowerCase()}-${this._id}" name="offer" value="${offer.name}">
+        <label for="${offer.name.replace(/ /g, `-`).toLowerCase()}-${this._id}" class="point__offers-label">
+          <span class="point__offer-service">${offer.name}</span> +€<span class="point__offer-price">${offer.price}</span>
+        </label>`.trim()))).join(``);
+    }
+
+    this._element.querySelector(`.travel-way__label`).innerHTML = typesIcon[newOffer.type];
+    this._element.querySelector(`.point__destination-label`).innerHTML = newOffer.type + ` to`;
+    this._element.querySelector(`.travel-way__toggle`).checked = false;
+  }
+
+  _onDatasetClick(evt) {
+    let newDestination = ``;
+
+    additionalData.destinationsArray.forEach((destination) => {
+      if (evt.target.value === destination.name) {
+        newDestination = destination;
+      }
+    });
+
+    this._element.querySelector(`.point__destination-text`).innerHTML = newDestination.description;
+    this._element.querySelector(`.point__destination-images`).innerHTML =
+      (Array.from(newDestination.pictures).map((picture) => (`
+        <img src="${picture.src}" alt="${picture.description}" class="point__destination-image">
+        `.trim()))).join(``);
+  }
+
+  _onButtonPush(evt) {
+    if (typeof this._onButton === `function`) {
+      this._onButton(evt);
+    }
+  }
+
   bind() {
-    const form = this._element.querySelector(`form`);
+    this._formContainer = this._element.querySelector(`form`);
 
-    form.addEventListener(`submit`, this._onSubmitClick);
-
-    form.addEventListener(`reset`, this._onDeleteClick);
+    this._formContainer.addEventListener(`submit`, this._onSubmitClick);
+    this._formContainer.addEventListener(`reset`, this._onDeleteClick);
 
     this._element.querySelector(`.travel-way__select`).addEventListener(`change`, this._onTypeClick);
-
     this._element.querySelector(`.point__destination-input`).addEventListener(`change`, this._onDatasetClick);
 
     window.addEventListener(`keydown`, this._onButtonPush);
 
-    this._flatpickrStart = flatpickr(this._element.querySelector(`.point__time [name="date-start"]`), {enableTime: true, altInput: true, altFormat: `H:i`});
-    this._flatpickrEnd = flatpickr(this._element.querySelector(`.point__time [name="date-end"]`), {enableTime: true, altInput: true, altFormat: `H:i`});
+    this._flatpickrStart = flatpickr(this._element.querySelector(`.point__time [name="date-start"]`), {enableTime: true, altInput: true, altFormat: `H:i`, defaultDate: this._time.start});
+    this._flatpickrEnd = flatpickr(this._element.querySelector(`.point__time [name="date-end"]`), {enableTime: true, altInput: true, altFormat: `H:i`, defaultDate: this._time.end});
   }
 
   unbind() {
-    const form = this._element.querySelector(`form`);
-
-    form.removeEventListener(`submit`, this._onSubmitClick);
-
-    form.removeEventListener(`reset`, this._onDeleteClick);
+    this._formContainer.removeEventListener(`submit`, this._onSubmitClick);
+    this._formContainer.removeEventListener(`reset`, this._onDeleteClick);
 
     this._element.querySelector(`.travel-way__select`).removeEventListener(`change`, this._onTypeClick);
-
     this._element.querySelector(`.point__destination-input`).removeEventListener(`change`, this._onDatasetClick);
 
     window.removeEventListener(`keydown`, this._onButtonPush);
@@ -294,6 +292,9 @@ export default class PointEdit extends Component {
 
   block(type) {
     this._element.style.border = `none`;
+    if (this._element.querySelector(`.` + ERROR_CLASS)) {
+      this._element.querySelector(`.` + ERROR_CLASS).remove();
+    }
     this._element.querySelectorAll(`input`).forEach((item) => {
       item.disabled = true;
     });
@@ -321,14 +322,16 @@ export default class PointEdit extends Component {
     }
   }
 
-  error(type) {
+  showError(type) {
+    if (!this._element.querySelector(`.` + ERROR_CLASS)) {
+      this._element.insertAdjacentHTML(`afterBegin`, ERROR_MESSAGE);
+    }
     this._element.style.border = `1px solid red`;
     this.shake();
     this.unblock(type);
   }
 
   shake() {
-    const ANIMATION_TIMEOUT = 600;
     this._element.style.animation = `shake ${ANIMATION_TIMEOUT / 1000}s`;
 
     setTimeout(() => {
@@ -343,7 +346,7 @@ export default class PointEdit extends Component {
       },
       'travel-way': (value) => {
         if (target.type !== value) {
-          offersArray.forEach((item) => {
+          additionalData.offersArray.forEach((item) => {
             if (value === item.type) {
               target.offers = item.offers;
             }

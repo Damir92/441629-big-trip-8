@@ -74,7 +74,6 @@ export const API = class {
     return fetch(`${this._endPoint}/${url}`, {method, body, headers})
       .then(checkStatus)
       .catch((err) => {
-        // console.error(`fetch error: ${err}`);
         throw err;
       });
   }
